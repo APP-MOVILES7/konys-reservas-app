@@ -6,12 +6,13 @@ import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../constants/colors';
+import { sombraTexto } from '../constants/estilos';
 import { entradaDirecta, listarActivas } from '../services/sedes';
 import { useSede } from '../hooks/SedeSeleccionada';
 import Boton from '../components/Boton';
 import FondoApp from '../components/FondoApp';
 import Footer from '../components/Footer';
-import Logo from '../components/Logo';
+import LogoMarca from '../components/LogoMarca';
 
 // Vive mientras la app está abierta: la entrada directa solo ocurre en el arranque.
 let arranqueAtendido = false;
@@ -52,18 +53,18 @@ export default function BienvenidaScreen() {
   let contenido;
   if (estado.cargando || directa) {
     contenido = <View style={styles.estado}>
-      <ActivityIndicator size="large" color={colors.primario} />
+      <ActivityIndicator size="large" color={colors.textoClaro} />
       {directa && <Text style={styles.secundario}>Entrando a {estado.data[0].nombre}…</Text>}
     </View>;
   } else if (estado.error) {
     contenido = <View style={styles.estado}>
-      <Ionicons name="warning-outline" size={36} color={colors.secundario} />
+      <Ionicons name="warning-outline" size={36} color={colors.textoClaroSecundario} />
       <Text accessibilityRole="alert" style={styles.mensaje}>{estado.error}</Text>
       <Boton titulo="Reintentar" variante="secundario" onPress={cargar} />
     </View>;
   } else if (!estado.data.length) {
     contenido = <View style={styles.estado}>
-      <Ionicons name="storefront-outline" size={36} color={colors.secundario} />
+      <Ionicons name="storefront-outline" size={36} color={colors.textoClaroSecundario} />
       <Text style={styles.mensaje}>Por ahora no hay sedes disponibles para reservar. Vuelve a intentarlo más tarde.</Text>
       <Boton titulo="Actualizar" variante="secundario" onPress={cargar} />
     </View>;
@@ -74,7 +75,7 @@ export default function BienvenidaScreen() {
       {/* F5: el cliente califica con el código de su reserva sin elegir sede. */}
       <Pressable accessibilityRole="link" accessibilityLabel="Calificar mi visita"
         onPress={() => router.push('/calificar')} style={styles.calificar} hitSlop={6}>
-        <Ionicons name="star-outline" size={18} color={colors.texto} />
+        <Ionicons name="star-outline" size={18} color={colors.textoClaro} />
         <Text style={styles.calificarTexto}>Calificar mi visita</Text>
       </Pressable>
     </View>;
@@ -84,16 +85,17 @@ export default function BienvenidaScreen() {
     <FondoApp>
       <SafeAreaView style={styles.pantalla} edges={['top', 'bottom']}>
         <ScrollView contentContainerStyle={styles.contenido}>
+          {/* El saludo y el logotipo ocupan el espacio libre de arriba y quedan centrados en él;
+              debajo, las sedes, y al final, ajustes y pie. */}
           <View style={styles.cabecera}>
-            <Text style={styles.saludo}>Bienvenidos a</Text>
-            <Text accessibilityRole="header" style={styles.marca}>Konys Pizza</Text>
-            <Logo tamano={112} style={styles.logo} />
+            <Text style={styles.saludo}>Bienvenido a</Text>
+            <LogoMarca />
           </View>
-          {contenido}
+          <View style={styles.centro}>{contenido}</View>
           <View style={styles.pie}>
             <Pressable accessibilityRole="button" accessibilityLabel="Acceso de personal" hitSlop={8}
               onPress={() => router.push('/acceso')} style={({ pressed }) => [styles.ajustes, pressed && styles.presionado]}>
-              <Ionicons name="settings-outline" size={24} color={colors.primario} />
+              <Ionicons name="settings-outline" size={24} color={colors.textoClaro} />
             </Pressable>
             <Footer />
           </View>
@@ -105,18 +107,18 @@ export default function BienvenidaScreen() {
 
 const styles = StyleSheet.create({
   pantalla: { flex: 1 },
-  contenido: { flexGrow: 1, padding: 16, gap: 24 },
-  cabecera: { alignItems: 'center', paddingTop: 48, gap: 4 },
-  saludo: { fontSize: 17, color: colors.secundario, fontWeight: '500' },
-  marca: { fontSize: 26, fontWeight: '800', color: colors.primario },
-  logo: { marginTop: 16 },
+  contenido: { flexGrow: 1, padding: 16, gap: 32, width: '100%', maxWidth: 560, alignSelf: 'center' },
+  cabecera: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: 16, paddingTop: 16, minHeight: 200 },
+  saludo: { fontSize: 20, color: colors.textoClaro, fontWeight: '500', letterSpacing: 0.5, textAlign: 'center', ...sombraTexto },
+  centro: { justifyContent: 'center' },
   lista: { gap: 12 },
   calificar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 44, marginTop: 4 },
-  calificarTexto: { fontSize: 16, color: colors.texto, textDecorationLine: 'underline' },
+  calificarTexto: { fontSize: 16, color: colors.textoClaro, textDecorationLine: 'underline' },
   estado: { alignItems: 'center', gap: 12, paddingVertical: 16 },
-  secundario: { fontSize: 15, color: colors.secundario, textAlign: 'center' },
-  mensaje: { fontSize: 15, color: colors.texto, textAlign: 'center' },
-  pie: { marginTop: 'auto', gap: 12 },
-  ajustes: { alignSelf: 'flex-end', width: 48, height: 48, borderRadius: 24, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, alignItems: 'center', justifyContent: 'center' },
+  secundario: { fontSize: 15, color: colors.textoClaroSecundario, textAlign: 'center' },
+  mensaje: { fontSize: 15, color: colors.textoClaro, textAlign: 'center' },
+  // El pie se queda con parte del espacio libre: así el logo y las sedes suben sin pegarse arriba.
+  pie: { flexGrow: 0.6, justifyContent: 'flex-end', gap: 12 },
+  ajustes: { alignSelf: 'flex-end', width: 48, height: 48, borderRadius: 24, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, alignItems: 'center', justifyContent: 'center' },
   presionado: { opacity: 0.7 },
 });

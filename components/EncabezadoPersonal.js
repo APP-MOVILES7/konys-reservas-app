@@ -9,7 +9,7 @@ export default function EncabezadoPersonal({ nombre, detalle, onSalir, saliendo 
       <Text accessibilityRole="header" style={styles.saludo} numberOfLines={1}>Hola, {nombre}</Text>
       <Pressable accessibilityRole="button" accessibilityLabel="Cerrar sesión" disabled={saliendo}
         onPress={onSalir} hitSlop={8} style={styles.salir}>
-        <Ionicons name="log-out-outline" size={26} color={colors.texto} />
+        <Ionicons name="log-out-outline" size={26} color={colors.textoClaro} />
       </Pressable>
     </View>
     <Text style={styles.detalle}>{detalle}</Text>
@@ -19,7 +19,7 @@ export default function EncabezadoPersonal({ nombre, detalle, onSalir, saliendo 
 const styles = StyleSheet.create({
   encabezado: { gap: 4 },
   fila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  saludo: { flex: 1, fontSize: 24, fontWeight: '800', color: colors.texto },
+  saludo: { flex: 1, fontSize: 24, fontWeight: '800', color: colors.textoClaro },
   salir: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  detalle: { fontSize: 15, color: colors.secundario },
+  detalle: { fontSize: 15, color: colors.textoClaroSecundario },
 });

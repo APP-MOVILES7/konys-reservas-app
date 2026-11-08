@@ -9,5 +9,5 @@ export default function Footer() {
 }
 
 const styles = StyleSheet.create({
-  texto: { fontSize: 11, lineHeight: 15, color: colors.secundario, textAlign: 'center', paddingHorizontal: 24 },
+  texto: { fontSize: 11, lineHeight: 15, color: colors.textoClaroSecundario, textAlign: 'center', paddingHorizontal: 24 },
 });

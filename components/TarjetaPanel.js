@@ -7,7 +7,7 @@ import { colors } from '../constants/colors';
 export default function TarjetaPanel({ titulo, detalle, icono, onPress, etiqueta, derecha }) {
   return <Pressable accessibilityRole="button" accessibilityLabel={`${titulo}. ${detalle ?? ''}`} onPress={onPress}
     style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}>
-    {!!icono && <View style={styles.icono}><Ionicons name={icono} size={22} color={colors.primario} /></View>}
+    {!!icono && <View style={styles.icono}><Ionicons name={icono} size={22} color={colors.textoClaro} /></View>}
     <View style={styles.contenido}>
       <View style={styles.fila}>
         <Text style={styles.titulo}>{titulo}</Text>
@@ -16,17 +16,17 @@ export default function TarjetaPanel({ titulo, detalle, icono, onPress, etiqueta
       {!!detalle && <Text style={styles.detalle}>{detalle}</Text>}
     </View>
     {!!derecha && <View>{derecha}</View>}
-    <Ionicons name="chevron-forward" size={20} color={colors.texto} />
+    <Ionicons name="chevron-forward" size={20} color={colors.textoClaro} />
   </Pressable>;
 }
 
 const styles = StyleSheet.create({
-  tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 72, padding: 14, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
+  tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 72, padding: 14, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
   presionada: { opacity: 0.8 },
-  icono: { width: 42, height: 42, borderRadius: 10, backgroundColor: colors.fondo, alignItems: 'center', justifyContent: 'center' },
+  icono: { width: 42, height: 42, borderRadius: 10, backgroundColor: colors.vidrio, alignItems: 'center', justifyContent: 'center' },
   contenido: { flex: 1, gap: 3 },
   fila: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  titulo: { fontSize: 16, fontWeight: '600', color: colors.texto },
-  etiqueta: { fontSize: 12, color: colors.error, fontWeight: '600' },
-  detalle: { fontSize: 13, color: colors.secundario, lineHeight: 18 },
+  titulo: { fontSize: 16, fontWeight: '600', color: colors.textoClaro },
+  etiqueta: { fontSize: 12, color: colors.errorClaro, fontWeight: '600' },
+  detalle: { fontSize: 13, color: colors.textoClaroSecundario, lineHeight: 18 },
 });

@@ -5,12 +5,13 @@ import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native
 import { router, useFocusEffect, useNavigation } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { borrar, cambiarEstado, listarTodas } from '../../services/mesas';
 import { useGuardiaPersonal, useSesionPersonal } from '../../hooks/SesionPersonal';
 import EstadoPantalla from '../../components/EstadoPantalla';
 import FilaMesa from '../../components/FilaMesa';
 
-export default function MesasScreen() {
+function MesasScreenContenido() {
   const { sedeGestion, puede } = useSesionPersonal();
   const sedeId = sedeGestion?.id;
   const gestiona = puede('mesas.gestionar');
@@ -76,7 +77,7 @@ export default function MesasScreen() {
         onBorrar={() => { setAviso(null); setMesaAEliminar(item); }} />} />
     {gestiona && <Pressable accessibilityRole="button" accessibilityLabel="Crear mesa" onPress={() => router.push('/gestion/mesa-form')}
       style={styles.fab}>
-      <Ionicons name="add" size={32} color={colors.blanco} />
+      <Ionicons name="add" size={32} color={colors.primario} />
     </Pressable>}
     <Modal transparent visible={!!mesaAEliminar} animationType="fade" onRequestClose={() => setMesaAEliminar(null)}>
       <View style={styles.modalFondo}>
@@ -99,19 +100,24 @@ export default function MesasScreen() {
   </View>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function MesasScreen() {
+  return <FondoSeccion edges={[]}><MesasScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   lista: { padding: 16, paddingBottom: 90 },
-  aviso: { color: colors.error, fontSize: 14, textAlign: 'center', paddingHorizontal: 16, paddingTop: 12 },
-  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.primario, alignItems: 'center', justifyContent: 'center' },
+  aviso: { color: colors.errorClaro, fontSize: 14, textAlign: 'center', paddingHorizontal: 16, paddingTop: 12 },
+  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.acento, alignItems: 'center', justifyContent: 'center' },
   modalFondo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.blanco, borderRadius: 16, padding: 20, gap: 12 },
-  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.texto },
-  modalTexto: { fontSize: 15, color: colors.texto },
+  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.primario, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 16, padding: 20, gap: 12 },
+  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.textoClaro },
+  modalTexto: { fontSize: 15, color: colors.textoClaro },
   modalAcciones: { flexDirection: 'row', gap: 10, marginTop: 4 },
   modalBoton: { flex: 1, minHeight: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  modalCancelar: { backgroundColor: colors.fondo, borderWidth: 1, borderColor: colors.borde },
-  modalCancelarTexto: { color: colors.texto, fontSize: 16, fontWeight: '600' },
+  modalCancelar: { backgroundColor: colors.vidrio, borderWidth: 1, borderColor: colors.vidrioBorde },
+  modalCancelarTexto: { color: colors.textoClaro, fontSize: 16, fontWeight: '600' },
   modalBorrar: { backgroundColor: colors.error },
   modalBorrarTexto: { color: colors.blanco, fontSize: 16, fontWeight: '600' },
 });

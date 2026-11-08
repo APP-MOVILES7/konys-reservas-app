@@ -72,9 +72,9 @@ const styles = StyleSheet.create({
   pantalla: { flex: 1 },
   contenido: { flexGrow: 1, padding: 16, gap: 14 },
   cabecera: { alignItems: 'center', gap: 10, paddingTop: 24, paddingBottom: 6 },
-  titulo: { fontSize: 24, fontWeight: '800', color: colors.texto, textAlign: 'center' },
-  secundario: { fontSize: 15, color: colors.secundario, textAlign: 'center', lineHeight: 21 },
-  aviso: { color: colors.error, fontSize: 14, textAlign: 'center' },
+  titulo: { fontSize: 24, fontWeight: '800', color: colors.textoClaro, textAlign: 'center' },
+  secundario: { fontSize: 15, color: colors.textoClaroSecundario, textAlign: 'center', lineHeight: 21 },
+  aviso: { color: colors.errorClaro, fontSize: 14, textAlign: 'center' },
   boton: { alignSelf: 'stretch' },
   pie: { marginTop: 'auto', paddingTop: 24 },
 });

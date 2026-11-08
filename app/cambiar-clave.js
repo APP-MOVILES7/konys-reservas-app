@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import { Redirect, router } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../constants/colors';
+import FondoSeccion from '../components/FondoSeccion';
 import { evaluarIngreso } from '../services/permisos';
 import { validarClaveNueva } from '../services/validaciones';
 import { useSesionPersonal } from '../hooks/SesionPersonal';
@@ -12,7 +13,7 @@ import Boton from '../components/Boton';
 import Campo from '../components/Campo';
 import EstadoPantalla from '../components/EstadoPantalla';
 
-export default function CambiarClaveScreen() {
+function CambiarClaveScreenContenido() {
   const { cargando, perfil, cambiarClave, salir } = useSesionPersonal();
   const [form, setForm] = useState({ nueva: '', confirmar: '' });
   const [enviando, setEnviando] = useState(false);
@@ -47,7 +48,7 @@ export default function CambiarClaveScreen() {
   return <KeyboardAvoidingView style={styles.pantalla} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={80}>
     <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
       <View style={styles.cabecera}>
-        <Ionicons name="key-outline" size={44} color={colors.texto} />
+        <Ionicons name="key-outline" size={44} color={colors.textoClaro} />
         <Text accessibilityRole="header" style={styles.titulo}>Crea tu clave personal</Text>
         <Text style={styles.secundario}>Ingresaste con una clave temporal. Antes de continuar crea una clave nueva.</Text>
       </View>
@@ -68,14 +69,19 @@ export default function CambiarClaveScreen() {
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function CambiarClaveScreen() {
+  return <FondoSeccion edges={[]}><CambiarClaveScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { flexGrow: 1, padding: 16, gap: 14 },
   cabecera: { alignItems: 'center', gap: 10, paddingTop: 24, paddingBottom: 6 },
-  titulo: { fontSize: 24, fontWeight: '800', color: colors.texto, textAlign: 'center' },
-  secundario: { fontSize: 15, color: colors.secundario, textAlign: 'center', lineHeight: 21 },
-  aviso: { color: colors.error, fontSize: 14, textAlign: 'center' },
+  titulo: { fontSize: 24, fontWeight: '800', color: colors.textoClaro, textAlign: 'center' },
+  secundario: { fontSize: 15, color: colors.textoClaroSecundario, textAlign: 'center', lineHeight: 21 },
+  aviso: { color: colors.errorClaro, fontSize: 14, textAlign: 'center' },
   boton: { alignSelf: 'stretch' },
   salir: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
-  salirTexto: { color: colors.primario, fontSize: 15, fontWeight: '600' },
+  salirTexto: { color: colors.textoClaro, fontSize: 15, fontWeight: '600' },
 });

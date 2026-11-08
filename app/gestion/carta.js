@@ -6,6 +6,7 @@ import { FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleS
 import { useFocusEffect, useNavigation } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { CATEGORIAS } from '../../constants/dominio';
 import { listarTodos, crear, actualizar, borrar } from '../../services/platos';
 import { validarPlato } from '../../services/validaciones';
@@ -16,7 +17,7 @@ import EstadoPantalla from '../../components/EstadoPantalla';
 const pesos = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
 const vacio = { nombre: '', categoria: 'pizzas', descripcion: '', precio: '', disponible: true, foto_url: '' };
 
-export default function CartaAdminScreen() {
+function CartaAdminScreenContenido() {
   const { sedeGestion: sede, puede } = useSesionPersonal();
   const sedeId = sede?.id;
   const gestiona = puede('carta.gestionar');
@@ -129,7 +130,7 @@ export default function CartaAdminScreen() {
           <View style={styles.disponible}>
             <Text style={styles.etiqueta}>Disponible en la carta del cliente</Text>
             <Switch accessibilityLabel="Disponible" value={form.disponible} disabled={enviando}
-              onValueChange={(v) => cambiar('disponible', v)} trackColor={{ true: colors.primario, false: colors.ocupado }} />
+              onValueChange={(v) => cambiar('disponible', v)} trackColor={{ true: colors.acento, false: colors.ocupado }} />
           </View>
           <Boton titulo={editandoId ? 'Guardar cambios' : 'Crear plato'} cargando={enviando}
             disabled={tocado && !validacion.valido} onPress={guardar} />
@@ -155,43 +156,48 @@ export default function CartaAdminScreen() {
         </View>
         {gestiona && <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${item.nombre}`} disabled={procesandoId === item.id}
           onPress={() => abrir(item)} style={styles.accion} hitSlop={8}>
-          <Ionicons name="pencil-outline" size={22} color={colors.primario} />
+          <Ionicons name="pencil-outline" size={22} color={colors.textoClaro} />
         </Pressable>}
         {gestiona ? <Pressable accessibilityRole="button" accessibilityLabel={`${item.disponible ? 'Ocultar' : 'Mostrar'} ${item.nombre}`}
           disabled={procesandoId === item.id} onPress={() => alternarDisponible(item)} style={styles.accion} hitSlop={8}>
-          <Ionicons name={item.disponible ? 'eye-off-outline' : 'eye-outline'} size={22} color={colors.secundario} />
+          <Ionicons name={item.disponible ? 'eye-off-outline' : 'eye-outline'} size={22} color={colors.textoClaroSecundario} />
         </Pressable>
           : <Switch accessibilityLabel={`${item.nombre} disponible`} value={item.disponible} disabled={procesandoId === item.id}
-            onValueChange={() => alternarDisponible(item)} trackColor={{ true: colors.primario, false: colors.ocupado }} />}
+            onValueChange={() => alternarDisponible(item)} trackColor={{ true: colors.acento, false: colors.ocupado }} />}
         {gestiona && <Pressable accessibilityRole="button" accessibilityLabel={`Eliminar ${item.nombre}`} disabled={procesandoId === item.id}
           onPress={() => eliminar(item)} style={styles.accion} hitSlop={8}>
-          <Ionicons name="trash-outline" size={22} color={colors.error} />
+          <Ionicons name="trash-outline" size={22} color={colors.errorClaro} />
         </Pressable>}
       </View>} />
   </View>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function CartaAdminScreen() {
+  return <FondoSeccion edges={[]}><CartaAdminScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   lista: { padding: 16, paddingBottom: 40, gap: 10 },
   avisoTop: { paddingHorizontal: 16, paddingTop: 12 },
   cabeceraLista: { gap: 8 },
   formulario: { padding: 16, paddingBottom: 40, gap: 8 },
-  titulo: { fontSize: 20, fontWeight: '800', color: colors.primario, marginBottom: 4 },
-  etiqueta: { fontSize: 14, color: colors.secundario },
+  titulo: { fontSize: 20, fontWeight: '800', color: colors.textoClaro, marginBottom: 4 },
+  etiqueta: { fontSize: 14, color: colors.textoClaroSecundario },
   input: { minHeight: 48, borderWidth: 1, borderColor: colors.borde, backgroundColor: colors.blanco, borderRadius: 10, padding: 12, fontSize: 16, color: colors.texto },
   area: { minHeight: 80, textAlignVertical: 'top' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 14 },
-  chipTextoElegido: { color: colors.blanco },
+  chipTextoElegido: { color: colors.primario },
   disponible: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 44 },
-  error: { color: colors.error, fontSize: 14 },
-  plato: { flexDirection: 'row', alignItems: 'center', gap: 6, padding: 12, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
+  error: { color: colors.errorClaro, fontSize: 14 },
+  plato: { flexDirection: 'row', alignItems: 'center', gap: 6, padding: 12, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
   oculto: { opacity: 0.7 },
   platoContenido: { flex: 1, gap: 3 },
-  platoNombre: { fontSize: 16, fontWeight: '700', color: colors.texto },
-  detalle: { color: colors.secundario, fontSize: 14 },
+  platoNombre: { fontSize: 16, fontWeight: '700', color: colors.textoClaro },
+  detalle: { color: colors.textoClaroSecundario, fontSize: 14 },
   accion: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

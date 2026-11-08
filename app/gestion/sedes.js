@@ -7,11 +7,12 @@ import { FlatList, Modal, Pressable, StyleSheet, Switch, Text, TextInput, View }
 import { router, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { cambiarEstado, eliminar, listarTodas } from '../../services/sedes';
 import { useGuardiaPersonal, useSesionPersonal } from '../../hooks/SesionPersonal';
 import EstadoPantalla from '../../components/EstadoPantalla';
 
-export default function SedesScreen() {
+function SedesScreenContenido() {
   // F3: solo con sedes.gestionar (admin general).
   const { sedeGestion: sedeActual, elegirSede: seleccionar } = useSesionPersonal();
   const [estado, setEstado] = useState({ data: [], cargando: true, error: null });
@@ -76,6 +77,7 @@ export default function SedesScreen() {
   const guardia = useGuardiaPersonal(['sedes.gestionar'], { conSede: false });
   if (guardia) return guardia;
   if (estado.cargando) return <EstadoPantalla cargando />;
+  const nombreCoincide = confirmacion.trim() === aEliminar?.nombre;
   if (estado.error) return <EstadoPantalla mensaje={estado.error} onReintentar={cargar} />;
 
   return <View style={styles.pantalla}>
@@ -96,18 +98,18 @@ export default function SedesScreen() {
         </View>
         {!item.es_principal && <Switch accessibilityLabel={`${item.activa ? 'Desactivar' : 'Activar'} ${item.nombre}`}
           value={item.activa} disabled={procesandoId === item.id} onValueChange={() => alternar(item)}
-          trackColor={{ true: colors.primario, false: colors.ocupado }} />}
+          trackColor={{ true: colors.acento, false: colors.ocupado }} />}
         <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${item.nombre}`} disabled={procesandoId === item.id}
           onPress={() => router.push({ pathname: '/gestion/sede-form', params: { sedeId: item.id } })} style={styles.accion} hitSlop={8}>
-          <Ionicons name="pencil-outline" size={22} color={colors.primario} />
+          <Ionicons name="pencil-outline" size={22} color={colors.textoClaro} />
         </Pressable>
         {!item.es_principal && <Pressable accessibilityRole="button" accessibilityLabel={`Eliminar ${item.nombre}`}
           disabled={procesandoId === item.id} onPress={() => abrirEliminar(item)} style={styles.accion} hitSlop={8}>
-          <Ionicons name="trash-outline" size={22} color={colors.error} />
+          <Ionicons name="trash-outline" size={22} color={colors.errorClaro} />
         </Pressable>}
       </View>} />
     <Pressable accessibilityRole="button" accessibilityLabel="Crear sede" onPress={() => router.push('/gestion/sede-form')} style={styles.fab}>
-      <Ionicons name="add" size={32} color={colors.blanco} />
+      <Ionicons name="add" size={32} color={colors.primario} />
     </Pressable>
     {/* 13d: la eliminación es definitiva y exige escribir el nombre exacto. */}
     <Modal transparent visible={!!aEliminar} animationType="fade" onRequestClose={() => setAEliminar(null)}>
@@ -127,9 +129,9 @@ export default function SedesScreen() {
               <Text style={styles.modalSecundarioTexto}>Desactivar en su lugar</Text>
             </Pressable>
           </View>
-          <Pressable accessibilityRole="button" disabled={confirmacion.trim() !== aEliminar?.nombre}
-            onPress={confirmarEliminar} style={[styles.modalBoton, styles.modalBorrar, confirmacion.trim() !== aEliminar?.nombre && styles.deshabilitado]}>
-            <Text style={styles.modalBorrarTexto}>Eliminar definitivamente</Text>
+          <Pressable accessibilityRole="button" disabled={!nombreCoincide} accessibilityState={{ disabled: !nombreCoincide }}
+            onPress={confirmarEliminar} style={[styles.modalBoton, styles.modalBorrar, !nombreCoincide && styles.deshabilitado]}>
+            <Text style={[styles.modalBorrarTexto, !nombreCoincide && styles.deshabilitadoTexto]}>Eliminar definitivamente</Text>
           </Pressable>
         </View>
       </View>
@@ -137,32 +139,39 @@ export default function SedesScreen() {
   </View>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function SedesScreen() {
+  return <FondoSeccion edges={[]}><SedesScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   lista: { padding: 16, paddingBottom: 100, gap: 12 },
   cabecera: { gap: 8 },
-  fila: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
+  fila: { flexDirection: 'row', alignItems: 'center', gap: 8, padding: 14, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
   inactiva: { opacity: 0.75 },
   filaTexto: { flex: 1, gap: 3 },
-  nombre: { fontSize: 16, fontWeight: '700', color: colors.texto },
-  secundario: { fontSize: 14, color: colors.secundario },
-  error: { color: colors.error, fontSize: 14 },
-  nota: { padding: 14, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
+  nombre: { fontSize: 16, fontWeight: '700', color: colors.textoClaro },
+  secundario: { fontSize: 14, color: colors.textoClaroSecundario },
+  error: { color: colors.errorClaro, fontSize: 14 },
+  nota: { padding: 14, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
   accion: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.primario, alignItems: 'center', justifyContent: 'center' },
+  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.acento, alignItems: 'center', justifyContent: 'center' },
   modalFondo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.blanco, borderRadius: 16, padding: 20, gap: 10 },
-  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.texto },
-  modalTexto: { fontSize: 15, color: colors.texto, lineHeight: 21 },
-  etiqueta: { fontSize: 14, color: colors.secundario },
+  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.primario, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 16, padding: 20, gap: 10 },
+  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.textoClaro },
+  modalTexto: { fontSize: 15, color: colors.textoClaro, lineHeight: 21 },
+  etiqueta: { fontSize: 14, color: colors.textoClaroSecundario },
   input: { minHeight: 48, borderWidth: 1, borderColor: colors.borde, backgroundColor: colors.blanco, borderRadius: 10, padding: 12, fontSize: 16, color: colors.texto },
   modalAcciones: { flexDirection: 'row', gap: 10, marginTop: 4 },
   modalBoton: { flex: 1, minHeight: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  modalCancelar: { backgroundColor: colors.fondo, borderWidth: 1, borderColor: colors.borde },
-  modalCancelarTexto: { color: colors.texto, fontSize: 16, fontWeight: '600' },
-  modalSecundario: { borderWidth: 1, borderColor: colors.primario },
-  modalSecundarioTexto: { color: colors.primario, fontSize: 15, fontWeight: '600' },
+  modalCancelar: { backgroundColor: colors.vidrio, borderWidth: 1, borderColor: colors.vidrioBorde },
+  modalCancelarTexto: { color: colors.textoClaro, fontSize: 16, fontWeight: '600' },
+  modalSecundario: { borderWidth: 1, borderColor: colors.textoClaro },
+  modalSecundarioTexto: { color: colors.textoClaro, fontSize: 15, fontWeight: '600' },
   modalBorrar: { backgroundColor: colors.error },
   modalBorrarTexto: { color: colors.blanco, fontSize: 16, fontWeight: '600' },
-  deshabilitado: { opacity: 0.45 },
+  // Deshabilitado: fondo oscuro con borde, no rojo translúcido (el texto se perdía sobre la tarjeta gris).
+  deshabilitado: { backgroundColor: colors.vidrio, borderWidth: 1, borderColor: colors.vidrioBorde },
+  deshabilitadoTexto: { color: colors.textoClaroSecundario },
 });

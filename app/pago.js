@@ -6,6 +6,7 @@ import { router, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Clipboard from 'expo-clipboard';
 import { colors } from '../constants/colors';
+import FondoSeccion from '../components/FondoSeccion';
 import { TIPOS_PAGO, ZONAS } from '../constants/dominio';
 import { crear } from '../services/reservas';
 import { listarActivos } from '../services/metodosPago';
@@ -18,7 +19,7 @@ import EstadoPantalla from '../components/EstadoPantalla';
 
 const etiquetaLlave = (tipo) => (tipo === 'bre-b' ? 'Llave Bre-B' : TIPOS_PAGO[tipo] ?? 'Llave');
 
-export default function PagoScreen() {
+function PagoScreenContenido() {
   const { pendiente, setPendiente } = useReservaPendiente();
   const { setReserva } = useReservaConfirmada();
   const [metodos, setMetodos] = useState({ data: [], cargando: true, error: null });
@@ -121,19 +122,19 @@ export default function PagoScreen() {
             </View>
             <Pressable accessibilityRole="button" accessibilityLabel={`Copiar ${etiquetaLlave(m.tipo)}`}
               onPress={() => copiar(m)} style={styles.copiar} hitSlop={6}>
-              <Ionicons name={copiada === m.id ? 'checkmark-outline' : 'copy-outline'} size={18} color={colors.primario} />
+              <Ionicons name={copiada === m.id ? 'checkmark-outline' : 'copy-outline'} size={18} color={colors.textoClaro} />
               <Text style={styles.copiarTexto}>{copiada === m.id ? 'Copiado' : 'Copiar'}</Text>
             </Pressable>
           </View>)}
 
     <View style={styles.tolerancia}>
-      <Ionicons name="time-outline" size={22} color={colors.primario} />
+      <Ionicons name="time-outline" size={22} color={colors.textoClaro} />
       <Text style={styles.secundario}>Tolerancia de 10 minutos. Si no llegas a más tardar a las {limite}, la mesa se libera para otros clientes.</Text>
     </View>
 
     <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: yaPague }}
       onPress={() => setYaPague((v) => !v)} style={styles.consentimiento}>
-      <Ionicons name={yaPague ? 'checkbox' : 'square-outline'} size={26} color={colors.primario} />
+      <Ionicons name={yaPague ? 'checkbox' : 'square-outline'} size={26} color={colors.textoClaro} />
       <Text style={styles.autorizacion}>Ya pagué. Hice la transferencia a una de las cuentas de la sede.</Text>
     </Pressable>
 
@@ -143,25 +144,30 @@ export default function PagoScreen() {
   </ScrollView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function PagoScreen() {
+  return <FondoSeccion edges={[]}><PagoScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 14 },
-  vacio: { flex: 1, backgroundColor: colors.fondo, padding: 24, gap: 16, justifyContent: 'center' },
-  vacioTexto: { color: colors.texto, fontSize: 16, textAlign: 'center', lineHeight: 23 },
-  tarjeta: { backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, paddingHorizontal: 16 },
-  fila: { flexDirection: 'row', gap: 16, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borde },
-  etiqueta: { width: 78, color: colors.secundario, fontSize: 15 },
-  valor: { flex: 1, textAlign: 'right', fontSize: 15, color: colors.texto, fontWeight: '500' },
-  titulo: { fontSize: 18, fontWeight: '700', color: colors.texto },
-  secundario: { color: colors.secundario, fontSize: 14, lineHeight: 21 },
-  metodo: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, padding: 14 },
+  vacio: { flex: 1, backgroundColor: 'transparent', padding: 24, gap: 16, justifyContent: 'center' },
+  vacioTexto: { color: colors.textoClaro, fontSize: 16, textAlign: 'center', lineHeight: 23 },
+  tarjeta: { backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, paddingHorizontal: 16 },
+  fila: { flexDirection: 'row', gap: 16, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.vidrioBorde },
+  etiqueta: { width: 78, color: colors.textoClaroSecundario, fontSize: 15 },
+  valor: { flex: 1, textAlign: 'right', fontSize: 15, color: colors.textoClaro, fontWeight: '500' },
+  titulo: { fontSize: 18, fontWeight: '700', color: colors.textoClaro },
+  secundario: { color: colors.textoClaroSecundario, fontSize: 14, lineHeight: 21 },
+  metodo: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, padding: 14 },
   metodoTexto: { flex: 1, gap: 2 },
-  metodoTipo: { fontSize: 13, color: colors.secundario },
-  metodoLlave: { fontSize: 17, fontWeight: '700', color: colors.texto },
-  copiar: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 12, borderRadius: 22, borderWidth: 1.5, borderColor: colors.primario },
-  copiarTexto: { color: colors.primario, fontWeight: '600', fontSize: 14 },
-  tolerancia: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, padding: 14 },
+  metodoTipo: { fontSize: 13, color: colors.textoClaroSecundario },
+  metodoLlave: { fontSize: 17, fontWeight: '700', color: colors.textoClaro },
+  copiar: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44, paddingHorizontal: 12, borderRadius: 22, borderWidth: 1.5, borderColor: colors.textoClaro },
+  copiarTexto: { color: colors.textoClaro, fontWeight: '600', fontSize: 14 },
+  tolerancia: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, padding: 14 },
   consentimiento: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
-  autorizacion: { flex: 1, color: colors.texto, fontSize: 14, lineHeight: 21 },
-  error: { color: colors.error, fontSize: 14, lineHeight: 21 },
+  autorizacion: { flex: 1, color: colors.textoClaro, fontSize: 14, lineHeight: 21 },
+  error: { color: colors.errorClaro, fontSize: 14, lineHeight: 21 },
 });

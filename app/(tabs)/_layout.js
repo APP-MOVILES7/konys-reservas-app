@@ -9,11 +9,13 @@ const iconos = { inicio: 'home-outline', carta: 'restaurant-outline' };
 export default function TabsLayout() {
   return (
     <Tabs screenOptions={({ route }) => ({
-      headerStyle: { backgroundColor: colors.fondo },
+      headerStyle: { backgroundColor: colors.primario },
       headerTintColor: colors.primario,
-      tabBarActiveTintColor: colors.primario,
-      tabBarInactiveTintColor: colors.secundario,
-      tabBarStyle: { backgroundColor: colors.blanco },
+      // Barra en tono vidrio (petróleo con borde translúcido) y pestaña activa en naranja (5.2:1).
+      // Sin desenfoque: la barra no flota sobre el contenido y en Carta quedaría vidrio sobre crema.
+      tabBarActiveTintColor: colors.acento,
+      tabBarInactiveTintColor: colors.textoClaroSecundario,
+      tabBarStyle: { backgroundColor: colors.primario, borderTopColor: colors.vidrioBorde, borderTopWidth: 1 },
       tabBarIcon: ({ color, size }) => <Ionicons name={iconos[route.name]} color={color} size={size} />,
     })}>
       {/* Inicio y Carta dibujan su propio encabezado con la sede y "Cambiar sede" (mockups 01 y 04). */}

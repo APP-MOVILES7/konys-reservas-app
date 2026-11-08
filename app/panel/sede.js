@@ -7,6 +7,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { esAdminGeneral, primerNombre, tarjetasPanel } from '../../services/permisos';
 import { listarReservas } from '../../services/reservas';
 import { listarPuntuaciones, promedioTexto, resumirCalificaciones } from '../../services/calificaciones';
@@ -15,7 +16,7 @@ import { useGuardiaPersonal, useSesionPersonal } from '../../hooks/SesionPersona
 import EncabezadoPersonal from '../../components/EncabezadoPersonal';
 import TarjetaPanel from '../../components/TarjetaPanel';
 
-export default function PanelSedeScreen() {
+function PanelSedeScreenContenido() {
   const { perfil, sedeGestion, salir, puede } = useSesionPersonal();
   const [saliendo, setSaliendo] = useState(false);
   const [hoy, setHoy] = useState(null);
@@ -73,7 +74,7 @@ export default function PanelSedeScreen() {
       {/* Solo el admin general cambia de sede; los demás gestionan la de su perfil. */}
       {general && <Pressable accessibilityRole="button" accessibilityLabel="Cambiar la sede que se gestiona"
         onPress={() => (router.canGoBack() ? router.back() : router.replace('/panel'))} style={styles.cambiar} hitSlop={6}>
-        <Ionicons name="swap-horizontal-outline" size={18} color={colors.primario} />
+        <Ionicons name="swap-horizontal-outline" size={18} color={colors.textoClaro} />
         <Text style={styles.cambiarTexto}>Cambiar sede</Text>
       </Pressable>}
       {gestionaReservas && <TarjetaPanel titulo="Hoy" icono="today-outline" detalle={detalleHoy}
@@ -94,14 +95,19 @@ export default function PanelSedeScreen() {
   </SafeAreaView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function PanelSedeScreen() {
+  return <FondoSeccion edges={[]}><PanelSedeScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { flexGrow: 1, padding: 16, gap: 12 },
   cambiar: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', minHeight: 44 },
-  cambiarTexto: { color: colors.primario, fontSize: 15, fontWeight: '600' },
+  cambiarTexto: { color: colors.textoClaro, fontSize: 15, fontWeight: '600' },
   lista: { gap: 12 },
   promedio: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  promedioTexto: { fontSize: 15, fontWeight: '700', color: colors.texto },
-  nota: { padding: 16, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
-  secundario: { color: colors.secundario, fontSize: 14, lineHeight: 21 },
+  promedioTexto: { fontSize: 15, fontWeight: '700', color: colors.textoClaro },
+  nota: { padding: 16, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
+  secundario: { color: colors.textoClaroSecundario, fontSize: 14, lineHeight: 21 },
 });

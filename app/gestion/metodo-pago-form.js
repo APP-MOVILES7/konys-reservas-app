@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { TIPOS_PAGO } from '../../constants/dominio';
 import { actualizar, crear, obtener } from '../../services/metodosPago';
 import { validarMetodoPago } from '../../services/validaciones';
@@ -21,7 +22,7 @@ const etiquetaLlave = (tipo) => {
   return 'Llave o cuenta';
 };
 
-export default function MetodoPagoFormScreen() {
+function MetodoPagoFormScreenContenido() {
   const { metodoId } = useLocalSearchParams();
   const { sedeGestion: sede } = useSesionPersonal();
   const sedeId = sede?.id;
@@ -117,22 +118,27 @@ export default function MetodoPagoFormScreen() {
       <View style={styles.filaSwitch}>
         <Text style={styles.seccion}>Método activo</Text>
         <Switch accessibilityLabel="Método activo" value={form.activo} onValueChange={(v) => cambiar('activo', v)}
-          trackColor={{ true: colors.primario, false: colors.ocupado }} />
+          trackColor={{ true: colors.acento, false: colors.ocupado }} />
       </View>
       <Boton titulo="Guardar método" cargando={enviando} onPress={guardar} />
     </ScrollView>
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function MetodoPagoFormScreen() {
+  return <FondoSeccion edges={[]}><MetodoPagoFormScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 14 },
-  seccion: { fontSize: 16, fontWeight: '700', color: colors.texto },
+  seccion: { fontSize: 16, fontWeight: '700', color: colors.textoClaro },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 14 },
-  chipTextoElegido: { color: colors.blanco },
+  chipTextoElegido: { color: colors.primario },
   filaSwitch: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
-  error: { color: colors.error, fontSize: 14, lineHeight: 21 },
+  error: { color: colors.errorClaro, fontSize: 14, lineHeight: 21 },
 });

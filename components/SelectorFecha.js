@@ -22,9 +22,10 @@ export default function SelectorFecha({ fechas, seleccionada, onChange, disabled
 const styles = StyleSheet.create({
   lista: { gap: 8, paddingVertical: 4 },
   dia: { minWidth: 60, minHeight: 82, padding: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borde, borderRadius: 12, backgroundColor: colors.blanco, gap: 3 },
-  seleccionado: { backgroundColor: colors.primario, borderColor: colors.primario },
+  seleccionado: { backgroundColor: colors.acento, borderColor: colors.acento },
   deshabilitado: { opacity: 0.35, backgroundColor: colors.ocupado },
   texto: { fontSize: 12, color: colors.secundario },
   numero: { fontSize: 20, fontWeight: '700', color: colors.texto },
-  claro: { color: colors.blanco },
+  // Estado activo en naranja; texto primario (blanco sobre naranja no cumple AA).
+  claro: { color: colors.primario, fontWeight: '700' },
 });

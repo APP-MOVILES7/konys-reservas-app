@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { listarPorSede, listarPuntuaciones, promedioTexto, resumirCalificaciones } from '../../services/calificaciones';
 import { leerFecha } from '../../services/slots';
 import { useGuardiaPersonal, useSesionPersonal } from '../../hooks/SesionPersonal';
@@ -23,7 +24,7 @@ const fechaCorta = (fecha) => (fecha
   ? leerFecha(fecha).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })
   : '');
 
-export default function CalificacionesScreen() {
+function CalificacionesScreenContenido() {
   const { sedeGestion: sede } = useSesionPersonal();
   const sedeId = sede?.id;
   const navigation = useNavigation();
@@ -109,28 +110,33 @@ export default function CalificacionesScreen() {
   </ScrollView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function CalificacionesScreen() {
+  return <FondoSeccion edges={[]}><CalificacionesScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 16 },
   filtros: { flexDirection: 'row', gap: 8 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 14 },
-  chipTextoElegido: { color: colors.blanco },
-  resumen: { flexDirection: 'row', alignItems: 'center', gap: 20, padding: 16, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
+  chipTextoElegido: { color: colors.primario },
+  resumen: { flexDirection: 'row', alignItems: 'center', gap: 20, padding: 16, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
   resumenIzquierda: { alignItems: 'flex-start', gap: 2 },
-  promedio: { fontSize: 40, fontWeight: '800', color: colors.texto },
-  votos: { fontSize: 13, color: colors.secundario },
+  promedio: { fontSize: 40, fontWeight: '800', color: colors.textoClaro },
+  votos: { fontSize: 13, color: colors.textoClaroSecundario },
   distribucion: { flex: 1, gap: 6 },
   distribucionFila: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  distribucionNumero: { width: 10, textAlign: 'right', fontSize: 13, color: colors.secundario },
-  barra: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.fondo, overflow: 'hidden' },
-  barraRelleno: { height: 8, borderRadius: 4, backgroundColor: colors.primario },
-  distribucionConteo: { width: 20, textAlign: 'right', fontSize: 13, color: colors.texto },
-  seccion: { fontSize: 18, fontWeight: '700', color: colors.texto },
-  vacio: { fontSize: 14, color: colors.secundario },
-  tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
+  distribucionNumero: { width: 10, textAlign: 'right', fontSize: 13, color: colors.textoClaroSecundario },
+  barra: { flex: 1, height: 8, borderRadius: 4, backgroundColor: colors.vidrio, overflow: 'hidden' },
+  barraRelleno: { height: 8, borderRadius: 4, backgroundColor: colors.acento },
+  distribucionConteo: { width: 20, textAlign: 'right', fontSize: 13, color: colors.textoClaro },
+  seccion: { fontSize: 18, fontWeight: '700', color: colors.textoClaro },
+  vacio: { fontSize: 14, color: colors.textoClaroSecundario },
+  tarjeta: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
   tarjetaTexto: { flex: 1, gap: 2 },
-  tarjetaTitulo: { fontSize: 15, fontWeight: '600', color: colors.texto },
-  tarjetaDetalle: { fontSize: 13, color: colors.secundario },
+  tarjetaTitulo: { fontSize: 15, fontWeight: '600', color: colors.textoClaro },
+  tarjetaDetalle: { fontSize: 13, color: colors.textoClaroSecundario },
 });

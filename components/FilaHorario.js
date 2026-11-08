@@ -22,10 +22,10 @@ export default function FilaHorario({ dia, jornada, horario, borrador, editando,
       </View>
       <Switch accessibilityLabel={`Jornada ${JORNADAS[jornada]} de ${DIAS_LARGO[dia]} activa`} value={horario.activo}
         disabled={procesando} onValueChange={(valor) => onCambio({ activo: valor })}
-        trackColor={{ true: colors.primario, false: colors.ocupado }} />
+        trackColor={{ true: colors.acento, false: colors.ocupado }} />
       <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${DIAS_LARGO[dia]} ${JORNADAS[jornada]}`}
         disabled={procesando} onPress={onEditar} style={styles.accion} hitSlop={8}>
-        <Ionicons name="pencil-outline" size={22} color={colors.primario} />
+        <Ionicons name="pencil-outline" size={22} color={colors.textoClaro} />
       </Pressable>
     </View>;
   }
@@ -48,29 +48,29 @@ export default function FilaHorario({ dia, jornada, horario, borrador, editando,
     <View style={styles.botones}>
       <Pressable accessibilityRole="button" accessibilityLabel="Guardar jornada" disabled={procesando}
         onPress={onGuardar} style={styles.accionIcono} hitSlop={8}>
-        <Ionicons name="checkmark-circle-outline" size={30} color={colors.primario} />
+        <Ionicons name="checkmark-circle-outline" size={30} color={colors.textoClaro} />
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Cancelar edición" disabled={procesando}
         onPress={onCancelar} style={styles.accionIcono} hitSlop={8}>
-        <Ionicons name="close-circle-outline" size={30} color={colors.secundario} />
+        <Ionicons name="close-circle-outline" size={30} color={colors.textoClaroSecundario} />
       </Pressable>
     </View>
   </View>;
 }
 
 const styles = StyleSheet.create({
-  fila: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, marginBottom: 10 },
+  fila: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, marginBottom: 10 },
   formulario: { flexDirection: 'column', alignItems: 'stretch', gap: 8 },
   contenido: { flex: 1, gap: 3 },
-  etiqueta: { color: colors.secundario, fontSize: 13, fontWeight: '600' },
-  valor: { color: colors.texto, fontSize: 15 },
-  estado: { color: colors.texto, fontSize: 13, fontWeight: '600' },
-  sinFila: { flex: 1, color: colors.secundario, fontSize: 14 },
-  titulo: { fontSize: 15, fontWeight: '700', color: colors.texto },
+  etiqueta: { color: colors.textoClaroSecundario, fontSize: 13, fontWeight: '600' },
+  valor: { color: colors.textoClaro, fontSize: 15 },
+  estado: { color: colors.textoClaro, fontSize: 13, fontWeight: '600' },
+  sinFila: { flex: 1, color: colors.textoClaroSecundario, fontSize: 14 },
+  titulo: { fontSize: 15, fontWeight: '700', color: colors.textoClaro },
   grupo: { gap: 4 },
   input: { minHeight: 44, borderWidth: 1, borderColor: colors.borde, backgroundColor: colors.blanco, borderRadius: 10, padding: 10, fontSize: 15, color: colors.texto },
   inputError: { borderColor: colors.error },
-  error: { color: colors.error, fontSize: 13 },
+  error: { color: colors.errorClaro, fontSize: 13 },
   botones: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8 },
   accion: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   accionIcono: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },

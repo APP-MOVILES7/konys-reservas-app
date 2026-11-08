@@ -6,6 +6,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { actualizar, crear, listarPrivilegios, obtener } from '../../services/roles';
 import { agruparPrivilegios, alternarPrivilegio } from '../../services/permisos';
 import { validarRol } from '../../services/validaciones';
@@ -16,7 +17,7 @@ import EstadoPantalla from '../../components/EstadoPantalla';
 
 const vacio = { codigo: '', nombre: '', descripcion: '', alcance: 'sede', privilegios: [] };
 
-export default function RolFormScreen() {
+function RolFormScreenContenido() {
   const { rolId } = useLocalSearchParams();
   const nuevo = !rolId;
   const navigation = useNavigation();
@@ -135,7 +136,7 @@ export default function RolFormScreen() {
             onPress={() => setForm((f) => ({ ...f, privilegios: alternarPrivilegio(f.privilegios, privilegio.clave) }))}
             style={[styles.permiso, bloqueado && styles.permisoBloqueado]}>
             <Ionicons name={marcado ? 'checkbox' : 'square-outline'} size={24}
-              color={bloqueado ? colors.ocupado : colors.primario} />
+              color={bloqueado ? colors.textoClaroSecundario : colors.textoClaro} />
             <Text style={[styles.permisoTexto, bloqueado && styles.permisoTextoBloqueado]}>{privilegio.descripcion}</Text>
           </Pressable>;
         })}
@@ -146,23 +147,28 @@ export default function RolFormScreen() {
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function RolFormScreen() {
+  return <FondoSeccion edges={[]}><RolFormScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 12 },
-  aviso: { color: colors.error, fontSize: 14 },
+  aviso: { color: colors.errorClaro, fontSize: 14 },
   grupo: { gap: 4 },
-  etiqueta: { fontSize: 14, color: colors.secundario },
-  valor: { fontSize: 16, color: colors.texto },
-  seccion: { fontSize: 16, fontWeight: '600', color: colors.texto, marginTop: 4 },
+  etiqueta: { fontSize: 14, color: colors.textoClaroSecundario },
+  valor: { fontSize: 16, color: colors.textoClaro },
+  seccion: { fontSize: 16, fontWeight: '600', color: colors.textoClaro, marginTop: 4 },
   chips: { flexDirection: 'row', gap: 8 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 18, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 15 },
-  chipTextoElegido: { color: colors.blanco },
+  chipTextoElegido: { color: colors.primario },
   grupoPermisos: { gap: 4 },
-  tituloGrupo: { fontSize: 15, fontWeight: '600', color: colors.texto, marginTop: 6 },
+  tituloGrupo: { fontSize: 15, fontWeight: '600', color: colors.textoClaro, marginTop: 6 },
   permiso: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
   permisoBloqueado: { opacity: 0.45 },
-  permisoTexto: { flex: 1, color: colors.texto, fontSize: 14, lineHeight: 20 },
-  permisoTextoBloqueado: { color: colors.secundario },
+  permisoTexto: { flex: 1, color: colors.textoClaro, fontSize: 14, lineHeight: 20 },
+  permisoTextoBloqueado: { color: colors.textoClaroSecundario },
 });

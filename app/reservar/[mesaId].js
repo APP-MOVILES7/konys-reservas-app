@@ -13,8 +13,10 @@ import { useReservaPendiente } from '../../hooks/ReservaPendiente';
 import { useSede } from '../../hooks/SedeSeleccionada';
 import Boton from '../../components/Boton';
 import EstadoPantalla from '../../components/EstadoPantalla';
+import FondoSeccion from '../../components/FondoSeccion';
 import SelectorFecha from '../../components/SelectorFecha';
 import SlotButton from '../../components/SlotButton';
+import TarjetaVidrio from '../../components/TarjetaVidrio';
 
 const formularioInicial = { cliente_nombre: '', num_personas: '1', cliente_contacto: '', acepta_tratamiento_datos: false };
 
@@ -98,88 +100,96 @@ export default function ReservarScreen() {
     router.push('/pago');
   }
 
-  if (base.cargando) return <EstadoPantalla cargando />;
-  if (base.error) return <EstadoPantalla mensaje={base.error} onReintentar={cargarBase} />;
-  if (!base.mesa) return <EstadoPantalla mensaje="La mesa ya no está disponible." onReintentar={cargarBase} />;
+  // Fondo de sección con el formulario en vidrio; los controles internos (fechas, horas,
+  // campos) quedan planos. Sin borde superior seguro: el encabezado de la pila ya lo cubre.
+  const envolver = (contenido) => <FondoSeccion edges={['bottom']} barraClara={false}>{contenido}</FondoSeccion>;
+  if (base.cargando) return envolver(<EstadoPantalla cargando claro />);
+  if (base.error) return envolver(<EstadoPantalla claro mensaje={base.error} onReintentar={cargarBase} />);
+  if (!base.mesa) return envolver(<EstadoPantalla claro mensaje="La mesa ya no está disponible." onReintentar={cargarBase} />);
 
-  return <KeyboardAvoidingView style={styles.pantalla} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={90}>
+  return envolver(<KeyboardAvoidingView style={styles.pantalla} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={90}>
     <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
-      <View style={styles.tarjeta}>
+      <TarjetaVidrio estilo={styles.tarjeta}>
         <Text style={styles.titulo}>{base.mesa.nombre}</Text>
         <Text style={styles.secundario}>{ZONAS[base.mesa.zona]} · hasta {base.mesa.capacidad} personas</Text>
-      </View>
-      {aviso && <Text accessibilityRole="alert" style={styles.error}>{aviso}</Text>}
-      <Text accessibilityRole="header" style={styles.titulo}>Fecha</Text>
-      <SelectorFecha fechas={fechas} seleccionada={fecha} onChange={(valor) => { setFecha(valor); setHora(null); setAviso(null); }} />
-      {!fechaHabilitada ? <EstadoPantalla mensaje="No hay horarios futuros para esta fecha. Elige otro día habilitado." onReintentar={cargarBase} />
-        : !listaLista ? <EstadoPantalla cargando={!disponibilidadVigente}
-          mensaje={disponibilidad.error} onReintentar={disponibilidadVigente && disponibilidad.error ? () => setRecarga((n) => n + 1) : undefined} />
-        : <>
-          {Object.entries(JORNADAS).map(([jornada, etiqueta]) => <View key={jornada} style={styles.grupo}>
-            <Text style={styles.titulo}>{etiqueta}</Text>
-            <View style={styles.grilla}>{slots.filter((s) => s.jornada === jornada).map((slot) =>
-              <SlotButton key={slot.hora_inicio} slot={slot} seleccionado={elegido?.hora_inicio === slot.hora_inicio}
-                onPress={() => { setHora(slot.hora_inicio); setAviso(null); }} />)}</View>
-            {!slots.some((s) => s.jornada === jornada) && <Text style={styles.secundario}>Sin jornada habilitada.</Text>}
-          </View>)}
-          <View style={styles.leyenda}>
-            <Text style={styles.secundario}>□ Libre</Text>
-            <Text style={styles.secundario}>▨ Ocupado o pasado</Text>
-            <Text style={styles.secundario}>■ Seleccionado</Text>
-          </View>
-          {!slots.some((s) => s.disponible) && <Text style={styles.secundario}>No quedan horarios disponibles. Elige otra fecha.</Text>}
-          {hora && !elegido && <Text accessibilityRole="alert" style={styles.error}>Ese horario ya no está disponible. Elige otro.</Text>}
-        </>}
-      <Text accessibilityRole="header" style={styles.titulo}>Tus datos</Text>
-      <View style={styles.grupo}>
-        <Text style={styles.etiqueta}>Nombre</Text>
-        <TextInput accessibilityLabel="Nombre" value={form.cliente_nombre} onChangeText={(v) => cambiar('cliente_nombre', v)}
-          autoCapitalize="words" autoComplete="name" style={styles.input} />
-        {!!form.cliente_nombre && validacion.errores.cliente_nombre && <Text style={styles.error}>{validacion.errores.cliente_nombre}</Text>}
-      </View>
-      <View style={styles.grupo}>
-        <Text style={styles.etiqueta}>Personas (máximo {base.mesa.capacidad})</Text>
-        <TextInput accessibilityLabel={`Personas, máximo ${base.mesa.capacidad}`} value={form.num_personas}
-          onChangeText={(v) => cambiar('num_personas', v)} keyboardType="number-pad" style={styles.input} />
-        {validacion.errores.num_personas && <Text style={styles.error}>{validacion.errores.num_personas}</Text>}
-      </View>
-      <View style={styles.grupo}>
-        <Text style={styles.etiqueta}>Teléfono (opcional)</Text>
-        <TextInput accessibilityLabel="Teléfono opcional" value={form.cliente_contacto} onChangeText={(v) => cambiar('cliente_contacto', v)}
-          keyboardType="phone-pad" autoComplete="tel" style={styles.input} />
-        {validacion.errores.cliente_contacto && <Text style={styles.error}>{validacion.errores.cliente_contacto}</Text>}
-      </View>
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: form.acepta_tratamiento_datos }}
-        onPress={() => cambiar('acepta_tratamiento_datos', !form.acepta_tratamiento_datos)} style={styles.consentimiento}>
-        <Ionicons name={form.acepta_tratamiento_datos ? 'checkbox' : 'square-outline'} size={26} color={colors.primario} />
-        <Text style={styles.autorizacion}>Autorizo el tratamiento de mis datos personales por Konys Pizza para gestionar esta reserva (Ley 1581 de 2012).</Text>
-      </Pressable>
-      <View style={styles.tarjeta}>
+      </TarjetaVidrio>
+      <TarjetaVidrio estilo={styles.tarjeta}>
+        {aviso && <Text accessibilityRole="alert" style={styles.error}>{aviso}</Text>}
+        <Text accessibilityRole="header" style={styles.titulo}>Fecha</Text>
+        <SelectorFecha fechas={fechas} seleccionada={fecha} onChange={(valor) => { setFecha(valor); setHora(null); setAviso(null); }} />
+        {!fechaHabilitada ? <EstadoPantalla claro mensaje="No hay horarios futuros para esta fecha. Elige otro día habilitado." onReintentar={cargarBase} />
+          : !listaLista ? <EstadoPantalla claro cargando={!disponibilidadVigente}
+            mensaje={disponibilidad.error} onReintentar={disponibilidadVigente && disponibilidad.error ? () => setRecarga((n) => n + 1) : undefined} />
+          : <>
+            {Object.entries(JORNADAS).map(([jornada, etiqueta]) => <View key={jornada} style={styles.grupo}>
+              <Text style={styles.titulo}>{etiqueta}</Text>
+              <View style={styles.grilla}>{slots.filter((s) => s.jornada === jornada).map((slot) =>
+                <SlotButton key={slot.hora_inicio} slot={slot} seleccionado={elegido?.hora_inicio === slot.hora_inicio}
+                  onPress={() => { setHora(slot.hora_inicio); setAviso(null); }} />)}</View>
+              {!slots.some((s) => s.jornada === jornada) && <Text style={styles.secundario}>Sin jornada habilitada.</Text>}
+            </View>)}
+            <View style={styles.leyenda}>
+              <Text style={styles.secundario}>□ Libre</Text>
+              <Text style={styles.secundario}>▨ Ocupado o pasado</Text>
+              <Text style={styles.secundario}>■ Seleccionado</Text>
+            </View>
+            {!slots.some((s) => s.disponible) && <Text style={styles.secundario}>No quedan horarios disponibles. Elige otra fecha.</Text>}
+            {hora && !elegido && <Text accessibilityRole="alert" style={styles.error}>Ese horario ya no está disponible. Elige otro.</Text>}
+          </>}
+      </TarjetaVidrio>
+      <TarjetaVidrio estilo={styles.tarjeta}>
+        <Text accessibilityRole="header" style={styles.titulo}>Tus datos</Text>
+        <View style={styles.grupo}>
+          <Text style={styles.etiqueta}>Nombre</Text>
+          <TextInput accessibilityLabel="Nombre" value={form.cliente_nombre} onChangeText={(v) => cambiar('cliente_nombre', v)}
+            autoCapitalize="words" autoComplete="name" style={styles.input} />
+          {!!form.cliente_nombre && validacion.errores.cliente_nombre && <Text style={styles.error}>{validacion.errores.cliente_nombre}</Text>}
+        </View>
+        <View style={styles.grupo}>
+          <Text style={styles.etiqueta}>Personas (máximo {base.mesa.capacidad})</Text>
+          <TextInput accessibilityLabel={`Personas, máximo ${base.mesa.capacidad}`} value={form.num_personas}
+            onChangeText={(v) => cambiar('num_personas', v)} keyboardType="number-pad" style={styles.input} />
+          {validacion.errores.num_personas && <Text style={styles.error}>{validacion.errores.num_personas}</Text>}
+        </View>
+        <View style={styles.grupo}>
+          <Text style={styles.etiqueta}>Teléfono (opcional)</Text>
+          <TextInput accessibilityLabel="Teléfono opcional" value={form.cliente_contacto} onChangeText={(v) => cambiar('cliente_contacto', v)}
+            keyboardType="phone-pad" autoComplete="tel" style={styles.input} />
+          {validacion.errores.cliente_contacto && <Text style={styles.error}>{validacion.errores.cliente_contacto}</Text>}
+        </View>
+        <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: form.acepta_tratamiento_datos }}
+          onPress={() => cambiar('acepta_tratamiento_datos', !form.acepta_tratamiento_datos)} style={styles.consentimiento}>
+          <Ionicons name={form.acepta_tratamiento_datos ? 'checkbox' : 'square-outline'} size={26} color={colors.textoClaro} />
+          <Text style={styles.autorizacion}>Autorizo el tratamiento de mis datos personales por Konys Pizza para gestionar esta reserva (Ley 1581 de 2012).</Text>
+        </Pressable>
+      </TarjetaVidrio>
+      <TarjetaVidrio estilo={styles.tarjeta}>
         <Text style={styles.titulo}>Resumen</Text>
         <Text style={styles.secundario}>{base.mesa.nombre} · {ZONAS[base.mesa.zona]}</Text>
         {fecha && <Text style={styles.secundario}>{leerFecha(fecha).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>}
         <Text style={styles.secundario}>{elegido ? `${elegido.hora_inicio} a ${elegido.hora_fin}` : 'Selecciona un horario disponible'}</Text>
         <Text style={styles.secundario}>{form.num_personas || '—'} personas · {form.cliente_nombre.trim() || 'Indica tu nombre'}</Text>
-      </View>
-      {!form.acepta_tratamiento_datos && <Text style={styles.secundario}>{validacion.errores.acepta_tratamiento_datos}</Text>}
-      <Boton titulo="Continuar al pago"
+        {!form.acepta_tratamiento_datos && <Text style={styles.secundario}>{validacion.errores.acepta_tratamiento_datos}</Text>}
+      </TarjetaVidrio>
+      <Boton titulo="Continuar al pago" variante="accion"
         disabled={!validacion.valido || !elegido || !fechaHabilitada || !listaLista} onPress={continuarAlPago} />
     </ScrollView>
-  </KeyboardAvoidingView>;
+  </KeyboardAvoidingView>);
 }
 
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
-  contenido: { padding: 16, paddingBottom: 40, gap: 18 },
-  tarjeta: { backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, padding: 16, gap: 7 },
-  titulo: { fontSize: 18, fontWeight: '700', color: colors.texto },
-  secundario: { color: colors.secundario, fontSize: 14, lineHeight: 21 },
+  pantalla: { flex: 1 },
+  // En tablet el formulario no pasa de 640 px y queda centrado.
+  contenido: { padding: 16, paddingBottom: 40, gap: 16, width: '100%', maxWidth: 640, alignSelf: 'center' },
+  tarjeta: { gap: 12 },
+  titulo: { fontSize: 18, fontWeight: '700', color: colors.textoClaro },
+  secundario: { color: colors.textoClaroSecundario, fontSize: 14, lineHeight: 21 },
   grupo: { gap: 8 },
   grilla: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   leyenda: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  etiqueta: { fontSize: 14, color: colors.secundario },
+  etiqueta: { fontSize: 14, color: colors.textoClaroSecundario },
   input: { minHeight: 48, borderWidth: 1, borderColor: colors.borde, backgroundColor: colors.blanco, borderRadius: 10, padding: 12, fontSize: 16, color: colors.texto },
-  error: { color: colors.error, fontSize: 14, lineHeight: 21 },
+  error: { color: colors.errorClaro, fontSize: 14, lineHeight: 21 },
   consentimiento: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
-  autorizacion: { flex: 1, color: colors.texto, fontSize: 14, lineHeight: 21 },
+  autorizacion: { flex: 1, color: colors.textoClaro, fontSize: 14, lineHeight: 21 },
 });

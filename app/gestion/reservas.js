@@ -9,6 +9,7 @@ import { FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from '
 import { router, useFocusEffect, useNavigation } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { listarTodas } from '../../services/mesas';
 import { cambiarEstado, liberar, listarReservas } from '../../services/reservas';
 import { fechaLocal } from '../../services/slots';
@@ -28,7 +29,7 @@ function sumarDia(dias) {
   return fechaLocal(new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + dias));
 }
 
-export default function ReservasScreen() {
+function ReservasScreenContenido() {
   const { perfil, sedeGestion, puede } = useSesionPersonal();
   const sedeId = sedeGestion?.id;
   const cancela = puede('reservas.gestionar');
@@ -142,7 +143,7 @@ export default function ReservasScreen() {
               ? horaTolerancia(item) : null} />} />}
     {cancela && <Pressable accessibilityRole="button" accessibilityLabel="Registrar reserva en el local"
       onPress={() => router.push('/gestion/reserva-form')} style={styles.fab}>
-      <Ionicons name="add" size={32} color={colors.blanco} />
+      <Ionicons name="add" size={32} color={colors.primario} />
     </Pressable>}
     {/* 08c: la liberación no se puede deshacer. */}
     <Modal transparent visible={!!aLiberar} animationType="fade" onRequestClose={() => setALiberar(null)}>
@@ -167,26 +168,31 @@ export default function ReservasScreen() {
   </View>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function ReservasScreen() {
+  return <FondoSeccion edges={[]}><ReservasScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   lista: { padding: 16, paddingBottom: 100 },
-  filtros: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 12 },
-  filtrosMesaContenedor: { flexGrow: 0 },
+  filtros: { flexDirection: 'row', flexWrap: 'wrap', flexShrink: 0, gap: 8, paddingHorizontal: 16, paddingTop: 12 },
+  filtrosMesaContenedor: { flexGrow: 0, flexShrink: 0 },
   filtrosMesa: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingVertical: 10 },
   chip: { minHeight: 40, borderRadius: 20, paddingHorizontal: 14, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 14 },
-  chipTextoElegido: { color: colors.blanco },
-  error: { color: colors.error, fontSize: 14, textAlign: 'center', paddingHorizontal: 16, paddingTop: 8 },
-  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.primario, alignItems: 'center', justifyContent: 'center' },
+  chipTextoElegido: { color: colors.primario },
+  error: { color: colors.errorClaro, fontSize: 14, textAlign: 'center', paddingHorizontal: 16, paddingTop: 8 },
+  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.acento, alignItems: 'center', justifyContent: 'center' },
   modalFondo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.blanco, borderRadius: 16, padding: 20, gap: 12 },
-  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.texto },
-  modalTexto: { fontSize: 15, color: colors.texto, lineHeight: 21 },
+  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.primario, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 16, padding: 20, gap: 12 },
+  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.textoClaro },
+  modalTexto: { fontSize: 15, color: colors.textoClaro, lineHeight: 21 },
   modalAcciones: { flexDirection: 'row', gap: 10, marginTop: 4 },
   modalBoton: { flex: 1, minHeight: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  modalCancelar: { backgroundColor: colors.fondo, borderWidth: 1, borderColor: colors.borde },
-  modalCancelarTexto: { color: colors.texto, fontSize: 16, fontWeight: '600' },
-  modalLiberar: { backgroundColor: colors.primario },
-  modalLiberarTexto: { color: colors.blanco, fontSize: 16, fontWeight: '600' },
+  modalCancelar: { backgroundColor: colors.vidrio, borderWidth: 1, borderColor: colors.vidrioBorde },
+  modalCancelarTexto: { color: colors.textoClaro, fontSize: 16, fontWeight: '600' },
+  modalLiberar: { backgroundColor: colors.acento },
+  modalLiberarTexto: { color: colors.primario, fontSize: 16, fontWeight: '600' },
 });

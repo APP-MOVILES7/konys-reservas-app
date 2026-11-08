@@ -5,6 +5,7 @@ import { BackHandler, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Te
 import { router, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../constants/colors';
+import FondoSeccion from '../components/FondoSeccion';
 import { crearPorCodigo } from '../services/calificaciones';
 import { validarCalificacion } from '../services/validaciones';
 import { leerFecha } from '../services/slots';
@@ -17,7 +18,7 @@ const fechaCorta = (fecha) => (fecha
   ? leerFecha(fecha).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'short' })
   : '');
 
-export default function CalificarScreen() {
+function CalificarScreenContenido() {
   const [form, setForm] = useState({ codigo: '', puntuacion: 0 });
   const [tocado, setTocado] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -57,9 +58,9 @@ export default function CalificarScreen() {
   if (gracias) {
     const resumen = [gracias.sede, gracias.mesa, fechaCorta(gracias.fecha)].filter(Boolean).join(' · ');
     return <View style={styles.gracias}>
-      <Ionicons name="checkmark-circle-outline" size={72} color={colors.primario} />
+      <Ionicons name="checkmark-circle-outline" size={72} color={colors.textoClaro} />
       <Text accessibilityRole="header" style={styles.titulo}>¡Gracias por calificar!</Text>
-      <CalificacionEstrellas valor={gracias.puntuacion} tamano={30} />
+      <CalificacionEstrellas valor={gracias.puntuacion} tamano={30} neon />
       {!!resumen && <Text style={styles.resumen}>{resumen}</Text>}
       <View style={styles.botonFinal}><Boton titulo="Volver al inicio" onPress={() => router.replace('/inicio')} /></View>
     </View>;
@@ -73,7 +74,7 @@ export default function CalificarScreen() {
         placeholder="K7Q2M9XD" error={tocado ? validacion.errores.codigo : null}
         ayuda="Son 8 caracteres; aparece en la pantalla de confirmación." />
       <Text style={styles.pregunta}>¿Cómo te fue?</Text>
-      <CalificacionEstrellas valor={form.puntuacion} onChange={(n) => { cambiar({ puntuacion: n }); setTocado(true); }} />
+      <CalificacionEstrellas neon valor={form.puntuacion} onChange={(n) => { cambiar({ puntuacion: n }); setTocado(true); }} />
       {tocado && validacion.errores.puntuacion && <Text accessibilityRole="alert" style={styles.error}>{validacion.errores.puntuacion}</Text>}
       {!!aviso && <Text accessibilityRole="alert" style={styles.error}>{aviso}</Text>}
       <Boton titulo="Enviar calificación" cargando={enviando} disabled={!validacion.valido} onPress={enviar} />
@@ -81,14 +82,19 @@ export default function CalificarScreen() {
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function CalificarScreen() {
+  return <FondoSeccion edges={[]}><CalificarScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 16 },
-  intro: { fontSize: 15, color: colors.texto, lineHeight: 22 },
-  pregunta: { fontSize: 17, fontWeight: '700', color: colors.texto, marginTop: 4 },
-  error: { color: colors.error, fontSize: 14, lineHeight: 21 },
-  gracias: { flex: 1, backgroundColor: colors.fondo, padding: 24, paddingTop: 56, alignItems: 'center', gap: 16 },
-  titulo: { fontSize: 24, fontWeight: '800', textAlign: 'center', color: colors.texto },
-  resumen: { fontSize: 15, color: colors.secundario, textAlign: 'center' },
+  intro: { fontSize: 15, color: colors.textoClaro, lineHeight: 22 },
+  pregunta: { fontSize: 17, fontWeight: '700', color: colors.textoClaro, marginTop: 4 },
+  error: { color: colors.errorClaro, fontSize: 14, lineHeight: 21 },
+  gracias: { flex: 1, backgroundColor: 'transparent', padding: 24, paddingTop: 56, alignItems: 'center', gap: 16 },
+  titulo: { fontSize: 24, fontWeight: '800', textAlign: 'center', color: colors.textoClaro },
+  resumen: { fontSize: 15, color: colors.textoClaroSecundario, textAlign: 'center' },
   botonFinal: { marginTop: 'auto', alignSelf: 'stretch', paddingBottom: 16 },
 });

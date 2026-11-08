@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { useFocusEffect, useNavigation } from 'expo-router';
-import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { DIAS_ORDEN, JORNADAS } from '../../constants/dominio';
 import { actualizar, listarTodos } from '../../services/horarios';
 import { validarHorario } from '../../services/validaciones';
@@ -11,7 +11,7 @@ import { useGuardiaPersonal, useSesionPersonal } from '../../hooks/SesionPersona
 import EstadoPantalla from '../../components/EstadoPantalla';
 import FilaHorario from '../../components/FilaHorario';
 
-export default function HorariosScreen() {
+function HorariosScreenContenido() {
   const { sedeGestion } = useSesionPersonal();
   const sedeId = sedeGestion?.id;
   const navigation = useNavigation();
@@ -82,7 +82,12 @@ export default function HorariosScreen() {
   return <ScrollView style={styles.pantalla} contentContainerStyle={styles.lista}>{filas}</ScrollView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function HorariosScreen() {
+  return <FondoSeccion edges={[]}><HorariosScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   lista: { padding: 16, paddingBottom: 40 },
 });

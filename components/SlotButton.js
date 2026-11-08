@@ -14,7 +14,8 @@ export default function SlotButton({ slot, seleccionado, onPress, disabled }) {
 const styles = StyleSheet.create({
   slot: { minWidth: 88, minHeight: 44, padding: 12, borderWidth: 1, borderColor: colors.borde, borderRadius: 10, alignItems: 'center', backgroundColor: colors.blanco },
   ocupado: { backgroundColor: colors.ocupado },
-  seleccionado: { backgroundColor: colors.primario, borderColor: colors.primario },
+  seleccionado: { backgroundColor: colors.acento, borderColor: colors.acento },
   texto: { color: colors.texto, fontSize: 16 },
-  claro: { color: colors.blanco },
+  // Estado activo en naranja; texto primario (blanco sobre naranja no cumple AA).
+  claro: { color: colors.primario, fontWeight: '700' },
 });

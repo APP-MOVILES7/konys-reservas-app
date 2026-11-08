@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Redirect, router, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { listarTodas } from '../../services/sedes';
 import { esAdminGeneral, primerNombre } from '../../services/permisos';
 import { useGuardiaPersonal, useSesionPersonal } from '../../hooks/SesionPersonal';
@@ -13,7 +14,7 @@ import EncabezadoPersonal from '../../components/EncabezadoPersonal';
 import EstadoPantalla from '../../components/EstadoPantalla';
 import TarjetaPanel from '../../components/TarjetaPanel';
 
-export default function PanelGeneralScreen() {
+function PanelGeneralScreenContenido() {
   const { perfil, elegirSede, puede, salir } = useSesionPersonal();
   const general = esAdminGeneral(perfil);
   const [estado, setEstado] = useState({ data: [], cargando: true, error: null });
@@ -72,10 +73,15 @@ export default function PanelGeneralScreen() {
   </SafeAreaView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function PanelGeneralScreen() {
+  return <FondoSeccion edges={[]}><PanelGeneralScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { flexGrow: 1, padding: 16, gap: 12 },
-  seccion: { fontSize: 16, fontWeight: '500', color: colors.texto, marginTop: 8 },
+  seccion: { fontSize: 16, fontWeight: '500', color: colors.textoClaro, marginTop: 8 },
   lista: { gap: 12, minHeight: 72 },
-  secundario: { fontSize: 15, color: colors.secundario },
+  secundario: { fontSize: 15, color: colors.textoClaroSecundario },
 });

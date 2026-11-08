@@ -5,6 +5,7 @@ import { useCallback, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { actualizar, crear, listar as listarPersonal, obtener } from '../../services/personal';
 import { listar as listarRoles } from '../../services/roles';
 import { puedeGestionarPerfil, resumenPrivilegios, rolesAsignables } from '../../services/permisos';
@@ -16,7 +17,7 @@ import EstadoPantalla from '../../components/EstadoPantalla';
 
 const vacio = { correo: '', nombre: '', clave_temporal: '', rol_id: null, activo: true };
 
-export default function UsuarioFormScreen() {
+function UsuarioFormScreenContenido() {
   const { usuarioId } = useLocalSearchParams();
   const nuevo = !usuarioId;
   const navigation = useNavigation();
@@ -116,28 +117,33 @@ export default function UsuarioFormScreen() {
       <View style={styles.interruptor}>
         <Text style={styles.seccion}>Acceso activo</Text>
         <Switch accessibilityLabel="Acceso activo" value={form.activo} disabled={enviando}
-          onValueChange={(v) => cambiar('activo', v)} trackColor={{ true: colors.primario, false: colors.ocupado }} />
+          onValueChange={(v) => cambiar('activo', v)} trackColor={{ true: colors.acento, false: colors.ocupado }} />
       </View>
       <Boton titulo="Guardar" cargando={enviando} disabled={tocado && !validacion.valido} onPress={guardar} />
     </ScrollView>
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function UsuarioFormScreen() {
+  return <FondoSeccion edges={[]}><UsuarioFormScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 12 },
-  aviso: { color: colors.error, fontSize: 14 },
-  seccion: { fontSize: 16, fontWeight: '500', color: colors.texto },
-  valor: { fontSize: 15, color: colors.secundario, marginTop: -6 },
+  aviso: { color: colors.errorClaro, fontSize: 14 },
+  seccion: { fontSize: 16, fontWeight: '500', color: colors.textoClaro },
+  valor: { fontSize: 15, color: colors.textoClaroSecundario, marginTop: -6 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
-  chipDeshabilitado: { borderStyle: 'dashed', backgroundColor: colors.fondo },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
+  chipDeshabilitado: { borderStyle: 'dashed', backgroundColor: colors.vidrio },
   chipTexto: { color: colors.texto, fontSize: 14 },
-  chipTextoElegido: { color: colors.blanco },
-  chipTextoDeshabilitado: { color: colors.secundario },
-  resumen: { padding: 14, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, gap: 4 },
-  resumenTitulo: { fontSize: 15, fontWeight: '600', color: colors.texto },
-  resumenTexto: { fontSize: 13, color: colors.secundario, lineHeight: 19 },
+  chipTextoElegido: { color: colors.primario },
+  chipTextoDeshabilitado: { color: colors.textoClaroSecundario },
+  resumen: { padding: 14, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, gap: 4 },
+  resumenTitulo: { fontSize: 15, fontWeight: '600', color: colors.textoClaro },
+  resumenTexto: { fontSize: 13, color: colors.textoClaroSecundario, lineHeight: 19 },
   interruptor: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
 });

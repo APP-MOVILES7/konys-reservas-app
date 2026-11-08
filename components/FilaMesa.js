@@ -17,24 +17,24 @@ export default function FilaMesa({ mesa, procesando, soloLectura = false, onCamb
     </View>
     {!soloLectura && <>
     <Switch accessibilityLabel={`Mesa ${mesa.nombre} activa`} value={mesa.activa} disabled={procesando}
-      onValueChange={onCambiarEstado} trackColor={{ true: colors.primario, false: colors.ocupado }} />
+      onValueChange={onCambiarEstado} trackColor={{ true: colors.acento, false: colors.ocupado }} />
     <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${mesa.nombre}`} disabled={procesando}
       onPress={onEditar} style={styles.accion} hitSlop={8}>
-      <Ionicons name="pencil-outline" size={22} color={colors.primario} />
+      <Ionicons name="pencil-outline" size={22} color={colors.textoClaro} />
     </Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel={`Borrar ${mesa.nombre}`} disabled={procesando}
       onPress={onBorrar} style={styles.accion} hitSlop={8}>
-      <Ionicons name="trash-outline" size={22} color={colors.error} />
+      <Ionicons name="trash-outline" size={22} color={colors.errorClaro} />
     </Pressable>
     </>}
   </View>;
 }
 
 const styles = StyleSheet.create({
-  fila: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, marginBottom: 10 },
+  fila: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, marginBottom: 10 },
   contenido: { flex: 1, gap: 3 },
-  nombre: { fontSize: 16, fontWeight: '700', color: colors.texto },
-  detalle: { color: colors.secundario, fontSize: 13 },
-  estado: { color: colors.texto, fontSize: 13, fontWeight: '600' },
+  nombre: { fontSize: 16, fontWeight: '700', color: colors.textoClaro },
+  detalle: { color: colors.textoClaroSecundario, fontSize: 13 },
+  estado: { color: colors.textoClaro, fontSize: 13, fontWeight: '600' },
   accion: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

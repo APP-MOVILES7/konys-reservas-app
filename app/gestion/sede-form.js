@@ -6,6 +6,7 @@ import { useCallback, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams, useNavigation } from 'expo-router';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { actualizar, crear, obtener } from '../../services/sedes';
 import { crear as crearUsuario } from '../../services/personal';
 import { listar as listarRoles } from '../../services/roles';
@@ -20,7 +21,7 @@ const formularioInicial = { nombre: '', direccion: '', telefono: '', activa: tru
 // Nombre del perfil del administrador; él puede pedir que se lo cambien después.
 const nombreAdmin = (sede) => `Administrador ${sede}`.slice(0, 80);
 
-export default function SedeFormScreen() {
+function SedeFormScreenContenido() {
   const { sedeId } = useLocalSearchParams();
   const esEdicion = Boolean(sedeId);
   const navigation = useNavigation();
@@ -160,7 +161,7 @@ export default function SedeFormScreen() {
         : <View style={styles.interruptor}>
           <Text style={styles.texto}>Sede activa</Text>
           <Switch accessibilityLabel="Sede activa" value={form.activa} disabled={enviando || !!creada}
-            onValueChange={(v) => cambiar('activa', v)} trackColor={{ true: colors.primario, false: colors.ocupado }} />
+            onValueChange={(v) => cambiar('activa', v)} trackColor={{ true: colors.acento, false: colors.ocupado }} />
         </View>}
       {!esEdicion && <Text style={styles.secundario}>La sede nueva recibe las jornadas de almuerzo y noche de todos los días; ajústalas en Horarios.</Text>}
       <Boton titulo={esEdicion ? 'Guardar cambios' : 'Guardar sede'} cargando={enviando}
@@ -169,16 +170,21 @@ export default function SedeFormScreen() {
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function SedeFormScreen() {
+  return <FondoSeccion edges={[]}><SedeFormScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 18 },
   grupo: { gap: 6 },
-  etiqueta: { fontSize: 14, color: colors.secundario },
+  etiqueta: { fontSize: 14, color: colors.textoClaroSecundario },
   input: { minHeight: 48, borderWidth: 1, borderColor: colors.borde, backgroundColor: colors.blanco, borderRadius: 10, padding: 12, fontSize: 16, color: colors.texto },
   interruptor: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 },
-  texto: { fontSize: 16, color: colors.texto },
-  nota: { padding: 14, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
-  secundario: { fontSize: 14, color: colors.secundario },
-  seccion: { fontSize: 16, fontWeight: '600', color: colors.texto },
-  error: { color: colors.error, fontSize: 14 },
+  texto: { fontSize: 16, color: colors.textoClaro },
+  nota: { padding: 14, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
+  secundario: { fontSize: 14, color: colors.textoClaroSecundario },
+  seccion: { fontSize: 16, fontWeight: '600', color: colors.textoClaro },
+  error: { color: colors.errorClaro, fontSize: 14 },
 });

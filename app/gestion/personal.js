@@ -7,12 +7,13 @@ import { FlatList, Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View 
 import { router, useFocusEffect, useNavigation } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { cambiarActivo, eliminar, listar } from '../../services/personal';
 import { puedeGestionarPerfil } from '../../services/permisos';
 import { useGuardiaPersonal, useSesionPersonal } from '../../hooks/SesionPersonal';
 import EstadoPantalla from '../../components/EstadoPantalla';
 
-export default function PersonalScreen() {
+function PersonalScreenContenido() {
   const { perfil, sedeGestion } = useSesionPersonal();
   const sedeId = sedeGestion?.id;
   const navigation = useNavigation();
@@ -102,20 +103,20 @@ export default function PersonalScreen() {
           </View>
           {gestionable && <>
             <Switch accessibilityLabel={`Acceso de ${item.email}`} value={item.activo} disabled={procesando}
-              onValueChange={() => alternar(item)} trackColor={{ true: colors.primario, false: colors.ocupado }} />
+              onValueChange={() => alternar(item)} trackColor={{ true: colors.acento, false: colors.ocupado }} />
             <Pressable accessibilityRole="button" accessibilityLabel={`Editar ${item.email}`} disabled={procesando}
               onPress={() => router.push({ pathname: '/gestion/usuario-form', params: { usuarioId: item.id } })} style={styles.accion} hitSlop={8}>
-              <Ionicons name="pencil-outline" size={22} color={colors.primario} />
+              <Ionicons name="pencil-outline" size={22} color={colors.textoClaro} />
             </Pressable>
             <Pressable accessibilityRole="button" accessibilityLabel={`Eliminar ${item.email}`} disabled={procesando}
               onPress={() => { setAviso(null); setAEliminar(item); }} style={styles.accion} hitSlop={8}>
-              <Ionicons name="trash-outline" size={22} color={colors.error} />
+              <Ionicons name="trash-outline" size={22} color={colors.errorClaro} />
             </Pressable>
           </>}
         </View>;
       }} />
     <Pressable accessibilityRole="button" accessibilityLabel="Nuevo usuario" onPress={() => router.push('/gestion/usuario-form')} style={styles.fab}>
-      <Ionicons name="add" size={32} color={colors.blanco} />
+      <Ionicons name="add" size={32} color={colors.primario} />
     </Pressable>
     <Modal transparent visible={!!aEliminar} animationType="fade" onRequestClose={() => setAEliminar(null)}>
       <View style={styles.modalFondo}>
@@ -136,30 +137,35 @@ export default function PersonalScreen() {
   </View>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function PersonalScreen() {
+  return <FondoSeccion edges={[]}><PersonalScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
-  filtrosContenedor: { flexGrow: 0 },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
+  filtrosContenedor: { flexGrow: 0, flexShrink: 0 },
   filtros: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
   chip: { minHeight: 40, borderRadius: 20, paddingHorizontal: 14, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 14 },
-  chipTextoElegido: { color: colors.blanco },
-  aviso: { color: colors.error, fontSize: 14, textAlign: 'center', paddingHorizontal: 16, paddingTop: 12 },
+  chipTextoElegido: { color: colors.primario },
+  aviso: { color: colors.errorClaro, fontSize: 14, textAlign: 'center', paddingHorizontal: 16, paddingTop: 12 },
   lista: { padding: 16, paddingBottom: 90, gap: 10 },
-  fila: { flexDirection: 'row', alignItems: 'center', gap: 6, padding: 12, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14 },
+  fila: { flexDirection: 'row', alignItems: 'center', gap: 6, padding: 12, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14 },
   contenido: { flex: 1, gap: 3 },
-  correo: { fontSize: 16, fontWeight: '600', color: colors.texto },
-  detalle: { fontSize: 13, color: colors.secundario },
+  correo: { fontSize: 16, fontWeight: '600', color: colors.textoClaro },
+  detalle: { fontSize: 13, color: colors.textoClaroSecundario },
   accion: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.primario, alignItems: 'center', justifyContent: 'center' },
+  fab: { position: 'absolute', right: 20, bottom: 24, width: 58, height: 58, borderRadius: 29, backgroundColor: colors.acento, alignItems: 'center', justifyContent: 'center' },
   modalFondo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.blanco, borderRadius: 16, padding: 20, gap: 12 },
-  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.texto },
-  modalTexto: { fontSize: 15, color: colors.texto, lineHeight: 21 },
+  modalCaja: { width: '100%', maxWidth: 420, backgroundColor: colors.primario, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 16, padding: 20, gap: 12 },
+  modalTitulo: { fontSize: 18, fontWeight: '800', color: colors.textoClaro },
+  modalTexto: { fontSize: 15, color: colors.textoClaro, lineHeight: 21 },
   modalAcciones: { flexDirection: 'row', gap: 10, marginTop: 4 },
   modalBoton: { flex: 1, minHeight: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  modalCancelar: { backgroundColor: colors.fondo, borderWidth: 1, borderColor: colors.borde },
-  modalCancelarTexto: { color: colors.texto, fontSize: 16, fontWeight: '600' },
+  modalCancelar: { backgroundColor: colors.vidrio, borderWidth: 1, borderColor: colors.vidrioBorde },
+  modalCancelarTexto: { color: colors.textoClaro, fontSize: 16, fontWeight: '600' },
   modalBorrar: { backgroundColor: colors.error },
   modalBorrarTexto: { color: colors.blanco, fontSize: 16, fontWeight: '600' },
 });

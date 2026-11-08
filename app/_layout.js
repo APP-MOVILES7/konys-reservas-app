@@ -17,8 +17,9 @@ export default function RootLayout() {
   useEffect(() => { hideAsync(); }, []);
 
   return <SedeProvider><SesionPersonalProvider><ReservaProvider><ReservaPendienteProvider>
-    <StatusBar style="dark" />
-    <Stack screenOptions={{ headerTintColor: colors.primario, headerStyle: { backgroundColor: colors.blanco }, contentStyle: { backgroundColor: colors.fondo } }}>
+    <StatusBar style="light" />
+    {/* Encabezados en petróleo con texto claro, sobre el fondo de sección de cada pantalla. */}
+    <Stack screenOptions={{ headerTintColor: colors.textoClaro, headerTitleStyle: { color: colors.textoClaro }, headerStyle: { backgroundColor: colors.primario }, headerShadowVisible: false, contentStyle: { backgroundColor: colors.primario } }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="bienvenida" options={{ headerShown: false, animation: 'fade' }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

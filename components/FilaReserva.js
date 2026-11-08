@@ -7,7 +7,7 @@ import { colors } from '../constants/colors';
 import { ESTADOS } from '../constants/dominio';
 import { leerFecha } from '../services/slots';
 
-const tono = { confirmada: colors.primario, cancelada: colors.error, completada: colors.secundario, no_asistio: colors.secundario };
+const tono = { confirmada: colors.textoClaro, cancelada: colors.errorClaro, completada: colors.textoClaroSecundario, no_asistio: colors.textoClaroSecundario };
 
 const horaCorta = (valor) => new Date(valor).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
 
@@ -20,9 +20,9 @@ export default function FilaReserva({ reserva, procesando, puedeVerPago, onCance
       <Text style={styles.nombre}>{reserva.cliente_nombre}</Text>
       <Text style={styles.detalle}>{reserva.mesa?.nombre ?? 'Mesa'} · {fecha} · {reserva.hora_inicio.slice(0, 5)}–{reserva.hora_fin.slice(0, 5)}</Text>
       <Text style={styles.detalle}>{reserva.num_personas} personas{reserva.cliente_contacto ? ` · ${reserva.cliente_contacto}` : ''}</Text>
-      <Text style={[styles.estado, { color: tono[reserva.estado] ?? colors.texto }]}>{ESTADOS[reserva.estado] ?? reserva.estado}</Text>
+      <Text style={[styles.estado, { color: tono[reserva.estado] ?? colors.textoClaro }]}>{ESTADOS[reserva.estado] ?? reserva.estado}</Text>
       {puedeVerPago && <View style={styles.pago}>
-        <Ionicons name={reserva.pago_reportado ? 'checkmark-circle-outline' : 'close-circle-outline'} size={16} color={reserva.pago_reportado ? colors.primario : colors.secundario} />
+        <Ionicons name={reserva.pago_reportado ? 'checkmark-circle-outline' : 'close-circle-outline'} size={16} color={reserva.pago_reportado ? colors.textoClaro : colors.textoClaroSecundario} />
         <Text style={styles.pagoTexto}>
           {reserva.pago_reportado
             ? `Pago reportado${reserva.pago_reportado_en ? ` · ${horaCorta(reserva.pago_reportado_en)}` : ''}`
@@ -56,18 +56,18 @@ export default function FilaReserva({ reserva, procesando, puedeVerPago, onCance
 }
 
 const styles = StyleSheet.create({
-  tarjeta: { padding: 14, backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, marginBottom: 10, gap: 10 },
+  tarjeta: { padding: 14, backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, marginBottom: 10, gap: 10 },
   contenido: { gap: 3 },
-  nombre: { fontSize: 16, fontWeight: '700', color: colors.texto },
-  detalle: { color: colors.secundario, fontSize: 14, lineHeight: 20 },
+  nombre: { fontSize: 16, fontWeight: '700', color: colors.textoClaro },
+  detalle: { color: colors.textoClaroSecundario, fontSize: 14, lineHeight: 20 },
   estado: { fontSize: 14, fontWeight: '700', marginTop: 2 },
   pago: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 },
-  pagoTexto: { color: colors.secundario, fontSize: 13 },
+  pagoTexto: { color: colors.textoClaroSecundario, fontSize: 13 },
   acciones: { flexDirection: 'row', gap: 8 },
-  accion: { flex: 1, minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: colors.primario, backgroundColor: colors.primario, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
-  cancelar: { backgroundColor: colors.blanco, borderColor: colors.error },
-  liberar: { backgroundColor: colors.primario, borderColor: colors.primario },
-  liberarEspera: { backgroundColor: colors.fondo, borderColor: colors.borde },
-  textoAccion: { color: colors.primario, fontWeight: '600', fontSize: 14 },
-  claro: { color: colors.blanco },
+  accion: { flex: 1, minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: colors.acento, backgroundColor: colors.acento, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
+  cancelar: { backgroundColor: colors.vidrioRespaldo, borderColor: colors.errorClaro },
+  liberar: { backgroundColor: colors.acento, borderColor: colors.acento },
+  liberarEspera: { backgroundColor: colors.vidrio, borderColor: colors.vidrioBorde },
+  textoAccion: { color: colors.textoClaro, fontWeight: '600', fontSize: 14 },
+  claro: { color: colors.primario },
 });

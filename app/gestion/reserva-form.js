@@ -6,6 +6,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import { router, useFocusEffect } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { JORNADAS } from '../../constants/dominio';
 import { listarActivas } from '../../services/mesas';
 import { listar } from '../../services/horarios';
@@ -21,7 +22,7 @@ import SlotButton from '../../components/SlotButton';
 
 const formularioInicial = { cliente_nombre: '', num_personas: '1', cliente_contacto: '', acepta_tratamiento_datos: false, pago_recibido: false };
 
-export default function ReservaFormScreen() {
+function ReservaFormScreenContenido() {
   const { sedeGestion } = useSesionPersonal();
   const sedeId = sedeGestion?.id;
   const [base, setBase] = useState({ mesas: [], horarios: [], cargando: true, error: null });
@@ -166,14 +167,14 @@ export default function ReservaFormScreen() {
         editable={!enviando} keyboardType="phone-pad" error={validacion.errores.cliente_contacto} />
       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: form.acepta_tratamiento_datos, disabled: enviando }}
         disabled={enviando} onPress={() => cambiar('acepta_tratamiento_datos', !form.acepta_tratamiento_datos)} style={styles.consentimiento}>
-        <Ionicons name={form.acepta_tratamiento_datos ? 'checkbox' : 'square-outline'} size={26} color={colors.primario} />
+        <Ionicons name={form.acepta_tratamiento_datos ? 'checkbox' : 'square-outline'} size={26} color={colors.textoClaro} />
         <Text style={styles.autorizacion}>El cliente autoriza el tratamiento de sus datos personales para gestionar esta reserva (Ley 1581 de 2012).</Text>
       </Pressable>
       {!form.acepta_tratamiento_datos && <Text style={styles.secundario}>{validacion.errores.acepta_tratamiento_datos}</Text>}
       {/* F4 (08b, D-06): el pago en el local es opcional; la reserva del cliente sí lo exige. */}
       <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: form.pago_recibido }}
         onPress={() => cambiar('pago_recibido', !form.pago_recibido)} style={styles.consentimiento}>
-        <Ionicons name={form.pago_recibido ? 'checkbox' : 'square-outline'} size={26} color={colors.primario} />
+        <Ionicons name={form.pago_recibido ? 'checkbox' : 'square-outline'} size={26} color={colors.textoClaro} />
         <Text style={styles.autorizacion}>Pago recibido (opcional). El cliente ya pagó en el local.</Text>
       </Pressable>
       <View style={styles.tarjeta}>
@@ -188,20 +189,25 @@ export default function ReservaFormScreen() {
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function ReservaFormScreen() {
+  return <FondoSeccion edges={[]}><ReservaFormScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 14 },
-  seccion: { fontSize: 16, fontWeight: '700', color: colors.texto },
-  secundario: { color: colors.secundario, fontSize: 14, lineHeight: 21 },
+  seccion: { fontSize: 16, fontWeight: '700', color: colors.textoClaro },
+  secundario: { color: colors.textoClaroSecundario, fontSize: 14, lineHeight: 21 },
   chips: { flexDirection: 'row', gap: 8, paddingVertical: 2 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 14 },
-  chipTextoElegido: { color: colors.blanco },
+  chipTextoElegido: { color: colors.primario },
   grupo: { gap: 8 },
   grilla: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tarjeta: { backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde, borderRadius: 14, padding: 16, gap: 7 },
-  error: { color: colors.error, fontSize: 14, lineHeight: 21 },
+  tarjeta: { backgroundColor: colors.vidrioRespaldo, borderWidth: 1, borderColor: colors.vidrioBorde, borderRadius: 14, padding: 16, gap: 7 },
+  error: { color: colors.errorClaro, fontSize: 14, lineHeight: 21 },
   consentimiento: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
-  autorizacion: { flex: 1, color: colors.texto, fontSize: 14, lineHeight: 21 },
+  autorizacion: { flex: 1, color: colors.textoClaro, fontSize: 14, lineHeight: 21 },
 });

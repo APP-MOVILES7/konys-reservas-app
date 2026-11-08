@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { colors } from '../../constants/colors';
+import FondoSeccion from '../../components/FondoSeccion';
 import { ZONAS } from '../../constants/dominio';
 import { crear, obtener, actualizar } from '../../services/mesas';
 import { validarMesa } from '../../services/validaciones';
@@ -11,7 +12,7 @@ import EstadoPantalla from '../../components/EstadoPantalla';
 
 const formularioInicial = { nombre: '', zona: 'salon', capacidad: '4', foto_url: '' };
 
-export default function MesaFormScreen() {
+function MesaFormScreenContenido() {
   const { mesaId } = useLocalSearchParams();
   const esEdicion = Boolean(mesaId);
   // F3: la mesa nueva queda en la sede que gestiona el personal (requiere mesas.gestionar).
@@ -115,17 +116,22 @@ export default function MesaFormScreen() {
   </KeyboardAvoidingView>;
 }
 
+// Mismo estilo que Inicio: fondo de sección detrás de toda la pantalla.
+export default function MesaFormScreen() {
+  return <FondoSeccion edges={[]}><MesaFormScreenContenido /></FondoSeccion>;
+}
+
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1, backgroundColor: 'transparent' },
   contenido: { padding: 16, paddingBottom: 40, gap: 18 },
   grupo: { gap: 6 },
-  etiqueta: { fontSize: 14, color: colors.secundario },
+  etiqueta: { fontSize: 14, color: colors.textoClaroSecundario },
   input: { minHeight: 48, borderWidth: 1, borderColor: colors.borde, backgroundColor: colors.blanco, borderRadius: 10, padding: 12, fontSize: 16, color: colors.texto },
   chips: { flexDirection: 'row', gap: 8 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 18, justifyContent: 'center', backgroundColor: colors.blanco, borderWidth: 1, borderColor: colors.borde },
-  chipElegido: { backgroundColor: colors.primario, borderColor: colors.primario },
+  chipElegido: { backgroundColor: colors.acento, borderColor: colors.acento },
   chipTexto: { color: colors.texto, fontSize: 15 },
-  chipTextoElegido: { color: colors.blanco },
-  error: { color: colors.error, fontSize: 14 },
-  aviso: { color: colors.secundario, fontSize: 13, textAlign: 'center' },
+  chipTextoElegido: { color: colors.primario },
+  error: { color: colors.errorClaro, fontSize: 14 },
+  aviso: { color: colors.textoClaroSecundario, fontSize: 13, textAlign: 'center' },
 });
