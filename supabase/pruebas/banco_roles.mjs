@@ -1,8 +1,9 @@
-// Banco de pruebas de RLS y roles (F3, 002_roles) en PostgreSQL embebido.
+// Banco de pruebas de RLS, roles, pagos y calificaciones (F3/F4/F5: 002_roles + 003_pagos +
+// 004_calificaciones) en PostgreSQL embebido.
 // No es dependencia de la app: PGlite se instala en una carpeta aparte.
 //   mkdir ../banco-pg && cd ../banco-pg && npm init -y && npm i @electric-sql/pglite
 //   cp ../konys-reservas-app/supabase/pruebas/banco_roles.mjs . && node banco_roles.mjs ../konys-reservas-app
-// Aplica schema.sql + 001 + 002 sobre una base vacía y prueba cada rol.
+// Aplica schema.sql + 001 + 002 + 003 + 004 sobre una base vacía y prueba cada rol.
 import { PGlite } from '@electric-sql/pglite';
 import { btree_gist } from '@electric-sql/pglite/contrib/btree_gist';
 import fs from 'node:fs';
@@ -45,7 +46,9 @@ await db.query(`insert into auth.users (id, email, raw_app_meta_data) values ($1
 await db.exec(leer('supabase/schema.sql'));
 await db.exec(leer('supabase/migrations/001_sedes.sql'));
 await db.exec(leer('supabase/migrations/002_roles.sql'));
-console.log('Migraciones 000 + 001 + 002 aplicadas.\n');
+await db.exec(leer('supabase/migrations/003_pagos.sql'));
+await db.exec(leer('supabase/migrations/004_calificaciones.sql'));
+console.log('Migraciones 000 + 001 + 002 + 003 + 004 aplicadas.\n');
 
 // Datos de prueba (como postgres; auth.uid() es null).
 await db.exec(`
@@ -72,13 +75,29 @@ for (const [k, rol, sede, activo, temp] of perfiles) {
 const mesaA = (await db.query(`select id from public.mesas where sede_id = $1 and nombre = 'Mesa 2'`, [sedeA])).rows[0].id;
 const mesaB = (await db.query(`select id from public.mesas where sede_id = $1`, [sedeB])).rows[0].id;
 // 2027-01-04 es lunes; la jornada de la noche va de 17:00 a 23:00.
-const reserva = (mesa, hora) => `insert into public.reservas (mesa_id, cliente_nombre, num_personas, fecha, hora_inicio, hora_fin, acepta_tratamiento_datos)
-  values ('${mesa}', 'Cliente Prueba', 2, '2027-01-04', '${hora}', '${hora}', true)`;
+// F4: por defecto la reserva pública reporta el pago (RN-13); el local puede no hacerlo.
+const reserva = (mesa, hora, pago = true) => `insert into public.reservas (mesa_id, cliente_nombre, num_personas, fecha, hora_inicio, hora_fin, acepta_tratamiento_datos, pago_reportado)
+  values ('${mesa}', 'Cliente Prueba', 2, '2027-01-04', '${hora}', '${hora}', true, ${pago})`;
 await db.exec(reserva(mesaA, '18:00') + ';' + reserva(mesaB, '18:00') + ';' + reserva(mesaA, '20:00'));
 const resA = (await db.query(`select id from public.reservas where mesa_id = $1 and hora_inicio = '18:00'`, [mesaA])).rows[0].id;
 const resA2 = (await db.query(`select id from public.reservas where mesa_id = $1 and hora_inicio = '20:00'`, [mesaA])).rows[0].id;
 const resB = (await db.query(`select id from public.reservas where mesa_id = $1`, [mesaB])).rows[0].id;
+// F5: dos reservas completadas (una por sede) para probar las calificaciones por código.
+await db.exec(reserva(mesaA, '17:00') + ';' + reserva(mesaB, '17:00'));
+const resA3 = (await db.query(`select id from public.reservas where mesa_id = $1 and hora_inicio = '17:00'`, [mesaA])).rows[0].id;
+const resB3 = (await db.query(`select id from public.reservas where mesa_id = $1 and hora_inicio = '17:00'`, [mesaB])).rows[0].id;
+await db.query(`update public.reservas set estado = 'completada' where id in ($1, $2)`, [resA3, resB3]);
+const codA = (await db.query(`select codigo from public.reservas where id = $1`, [resA])).rows[0].codigo;
+const codA3 = (await db.query(`select codigo from public.reservas where id = $1`, [resA3])).rows[0].codigo;
+const codB3 = (await db.query(`select codigo from public.reservas where id = $1`, [resB3])).rows[0].codigo;
 const platoA = (await db.query(`select id from public.platos where sede_id = $1 limit 1`, [sedeA])).rows[0].id;
+// F4: llaves de prueba; una inactiva para comprobar que el cliente no la ve.
+await db.exec(`
+  insert into public.metodos_pago (sede_id, tipo, titular, llave, activo) values
+    ('${sedeA}', 'bre-b', 'Konys A', '@konysa', true),
+    ('${sedeA}', 'nequi', 'Konys A', '300 000 0000', false),
+    ('${sedeB}', 'bancolombia', 'Konys B', '000-000000-00', true);
+`);
 
 let fallas = 0;
 // Ejecuta como un usuario dentro de una transacción que siempre se revierte.
@@ -124,14 +143,14 @@ await caso('anon no ejecuta tiene_privilegio', 'anon', `select public.tiene_priv
 await caso('anon sigue con slots_ocupados', 'anon', `select * from public.slots_ocupados('${mesaA}', '2027-01-04')`, 2);
 
 // Admin general
-await caso('admin general ve todas las reservas', 'admin', `select count(*) n from public.reservas`, cuenta(3));
+await caso('admin general ve todas las reservas', 'admin', `select count(*) n from public.reservas`, cuenta(5));
 await caso('admin general crea sede', 'admin', `insert into public.sedes (nombre) values ('Sede C')`, 1);
 await caso('admin general edita mesa de otra sede', 'admin', `update public.mesas set capacidad = 6 where id = '${mesaB}'`, 1);
 await caso('admin general cancela reserva', 'admin', `update public.reservas set estado = 'cancelada' where id = '${resB}'`, 1);
 
 // Admin de sede A
 await caso('admin sede: 13 privilegios', 'adminA', `select public.mi_sesion() as s`, (f) => f[0].s.privilegios.length === 13);
-await caso('admin sede: solo reservas de su sede', 'adminA', `select count(*) n from public.reservas`, cuenta(2));
+await caso('admin sede: solo reservas de su sede', 'adminA', `select count(*) n from public.reservas`, cuenta(3));
 await caso('admin sede no crea sedes', 'adminA', `insert into public.sedes (nombre) values ('Sede D')`, 'row-level security');
 await caso('admin sede no edita su sede', 'adminA', `update public.sedes set telefono = '1' where id = '${sedeA}'`, 0);
 await caso('admin sede no edita mesa de B', 'adminA', `update public.mesas set capacidad = 6 where id = '${mesaB}'`, 0);
@@ -144,9 +163,9 @@ await caso('admin sede no ve perfiles de B', 'adminA', `select count(*) n from p
 await caso('admin sede no crea roles', 'adminA', `insert into public.roles (codigo, nombre, alcance) values ('cajero','Cajero','sede')`, 'row-level security');
 
 // Recepción A
-await caso('recepción: solo reservas de A', 'recepA', `select count(*) n from public.reservas`, cuenta(2));
+await caso('recepción: solo reservas de A', 'recepA', `select count(*) n from public.reservas`, cuenta(3));
 await caso('recepción registra reserva en el local (A)', 'recepA', reserva(mesaA, '21:00'), 1);
-await caso('recepción con sesión puede reservar en B como cliente (igual que anon)', 'recepA', `insert into public.reservas (mesa_id, cliente_nombre, num_personas, fecha, hora_inicio, hora_fin, acepta_tratamiento_datos, estado) values ('${mesaB}', 'X Y', 2, '2027-01-04', '21:00', '21:00', true, 'cancelada')`, 1);
+await caso('recepción con sesión reserva en B como cliente con "Ya pagué"', 'recepA', `insert into public.reservas (mesa_id, cliente_nombre, num_personas, fecha, hora_inicio, hora_fin, acepta_tratamiento_datos, pago_reportado) values ('${mesaB}', 'X Y', 2, '2027-01-04', '21:00', '21:00', true, true)`, 1);
 await caso('recepción cancela', 'recepA', `update public.reservas set estado = 'cancelada' where id = '${resA}'`, 1);
 await caso('recepción no ve/edita reservas de B', 'recepA', `update public.reservas set estado = 'cancelada' where id = '${resB}'`, 0);
 await caso('recepción no cambia la fecha', 'recepA', `update public.reservas set fecha = '2027-01-05' where id = '${resA}'`, 'KONYS_SIN_PRIVILEGIO');
@@ -171,7 +190,7 @@ await caso('cocina no lee reservas', 'cocinaA', `select count(*) n from public.r
 
 // Clave temporal, suspensión y rol oculto
 await caso('clave temporal: sin acceso', 'nuevoA', `select count(*) n from public.reservas`, cuenta(0));
-await caso('clave temporal: tras marcar_clave_cambiada sí accede', 'nuevoA', `select public.marcar_clave_cambiada(); select count(*) n from public.reservas`, cuenta(2));
+await caso('clave temporal: tras marcar_clave_cambiada sí accede', 'nuevoA', `select public.marcar_clave_cambiada(); select count(*) n from public.reservas`, cuenta(3));
 await caso('suspendido: sin acceso', 'suspA', `select count(*) n from public.reservas`, cuenta(0));
 await caso('suspendido: ve su perfil (para el aviso)', 'suspA', `select public.mi_sesion() as s`, (f) => f[0].s.activo === false);
 await caso('rol oculto: sin acceso', 'admin', `update public.roles set activo = false where codigo = 'mesero'; set local request.jwt.claim.sub = '${U.meseroA}'; select count(*) n from public.reservas`, cuenta(0));
@@ -203,6 +222,55 @@ await caso('perfil de sede sin sede', 'admin', `update public.perfiles set sede_
 await caso('cocina (con sesión) reserva como cliente en B', 'cocinaA', reserva(mesaB, '21:00'), 1);
 await caso('regresión: solape da 23P01', 'anon', reserva(mesaA, '18:00'), 'reservas_sin_solape');
 await caso('regresión: capacidad', 'anon', reserva(mesaA, '19:00').replace(", 2, '2027", ", 9, '2027"), 'KONYS_CAPACIDAD_EXCEDIDA');
+
+// F4: pago reportado, métodos de pago y tolerancia de 10 minutos ---------
+await caso('anon no reserva sin "Ya pagué"', 'anon', reserva(mesaB, '22:00', false), 'KONYS_PAGO_REQUERIDO');
+await caso('el servidor sella pago_reportado_en', 'admin',
+  `${reserva(mesaB, '22:00')}; select count(*) n from public.reservas where pago_reportado_en is not null`, cuenta(6));
+await caso('recepción registra en el local sin pago (D-06)', 'recepA', reserva(mesaA, '21:00', false), 1);
+await caso('personal de otra sede no registra sin pago (como cliente)', 'recepA', reserva(mesaB, '21:00', false), 'KONYS_PAGO_REQUERIDO');
+
+await caso('anon ve solo las llaves activas', 'anon', `select count(*) n from public.metodos_pago`, cuenta(2));
+await caso('anon no ve llaves inactivas', 'anon', `select count(*) n from public.metodos_pago where not activo`, cuenta(0));
+await caso('recepción (pagos.ver) no gestiona llaves', 'recepA', `insert into public.metodos_pago (sede_id, tipo, titular, llave) values ('${sedeA}','otro','X','Y')`, 'row-level security');
+await caso('admin sede ve las llaves de su sede (incluida la inactiva)', 'adminA', `select count(*) n from public.metodos_pago where sede_id = '${sedeA}'`, cuenta(2));
+await caso('admin sede no crea llave en otra sede', 'adminA', `insert into public.metodos_pago (sede_id, tipo, titular, llave) values ('${sedeB}','nequi','X','Y')`, 'row-level security');
+await caso('admin sede desactiva su llave', 'adminA', `update public.metodos_pago set activo = false where sede_id = '${sedeA}' and llave = '@konysa'`, 1);
+await caso('admin sede no edita la llave de otra sede', 'adminA', `update public.metodos_pago set llave = 'x' where sede_id = '${sedeB}'`, 0);
+await caso('admin general gestiona llaves de cualquier sede', 'admin', `update public.metodos_pago set instrucciones = 'Muestra el comprobante' where sede_id = '${sedeB}'`, 1);
+
+// Una reserva en el pasado (como postgres, auth.uid() nulo) para probar la tolerancia.
+await db.query(`update public.reservas set fecha = '2026-01-05', hora_inicio = '20:00', hora_fin = '21:00' where id = $1`, [resA2]);
+await caso('no se libera antes de los 10 minutos', 'meseroA', `update public.reservas set estado = 'no_asistio' where id = '${resA}'`, 'KONYS_TOLERANCIA');
+await caso('no_asistio libera la mesa (slots_ocupados)', 'meseroA',
+  `update public.reservas set estado = 'no_asistio' where id = '${resA2}'; select count(*) n from public.slots_ocupados('${mesaA}', '2026-01-05')`, cuenta(0));
+await caso('no se reabre una no_asistio', 'admin',
+  `update public.reservas set estado = 'no_asistio' where id = '${resA2}'; update public.reservas set estado = 'confirmada' where id = '${resA2}'`, 'KONYS_TRANSICION_INVALIDA');
+await caso('cocina no libera reservas', 'cocinaA', `update public.reservas set estado = 'no_asistio' where id = '${resA2}'`, 0);
+
+// F4: eliminación controlada de una sede (excepción a RN-06) ------------
+await caso('admin de sede no elimina sedes', 'adminA', `select public.eliminar_sede('${sedeB}')`, 'KONYS_SIN_PERMISO');
+await caso('no se elimina la sede principal', 'admin', `select public.eliminar_sede('${sedeA}')`, 'KONYS_SEDE_PRINCIPAL');
+await caso('eliminar sede borra sus reservas', 'admin',
+  `select public.eliminar_sede('${sedeB}'); select count(*) n from public.reservas where sede_id = '${sedeB}'`, cuenta(0));
+await caso('eliminar sede borra sus perfiles', 'admin',
+  `select public.eliminar_sede('${sedeB}'); select count(*) n from public.perfiles where sede_id = '${sedeB}'`, cuenta(0));
+
+// F5: calificaciones por estrellas --------------------------------------
+await caso('el código de reserva se genera en el servidor', 'admin', `select count(*) n from public.reservas where codigo is not null`, cuenta(5));
+await caso('anon no lee la tabla de calificaciones', 'anon', `select count(*) n from public.calificaciones`, 'permission denied');
+await caso('anon califica una reserva completada con su código', 'anon', `select public.calificar_reserva('${codB3}', 5::smallint)`, 1);
+await caso('no se califica dos veces la misma reserva', 'anon', `select public.calificar_reserva('${codB3}', 5::smallint); select public.calificar_reserva('${codB3}', 4::smallint)`, 'calificaciones_reserva_id_key');
+await caso('código inexistente no califica', 'anon', `select public.calificar_reserva('ZZZZZZZZ', 5::smallint)`, 'KONYS_RESERVA_NO_ENCONTRADA');
+await caso('no se califica una reserva sin completar', 'anon', `select public.calificar_reserva('${codA}', 5::smallint)`, 'KONYS_RESERVA_NO_COMPLETADA');
+await caso('puntuación fuera de rango', 'anon', `select public.calificar_reserva('${codB3}', 9::smallint)`, 'KONYS_PUNTUACION_INVALIDA');
+await caso('recepción (calificaciones.ver) lee las de su sede', 'recepA',
+  `select public.calificar_reserva('${codA3}', 5::smallint); select count(*) n from public.calificaciones where sede_id = '${sedeA}'`, cuenta(1));
+await caso('recepción no lee calificaciones de otra sede', 'recepA', `select count(*) n from public.calificaciones where sede_id = '${sedeB}'`, cuenta(0));
+await caso('cocina no lee calificaciones', 'cocinaA', `select count(*) n from public.calificaciones`, cuenta(0));
+await caso('calificaciones_de_sede exige el privilegio', 'cocinaA', `select * from public.calificaciones_de_sede('${sedeA}')`, 'KONYS_SIN_PRIVILEGIO');
+await caso('calificaciones_de_sede devuelve código y mesa', 'recepA',
+  `select public.calificar_reserva('${codA3}', 4::smallint); select codigo from public.calificaciones_de_sede('${sedeA}')`, (f) => f[0].codigo === codA3);
 
 console.log(`\n${fallas === 0 ? 'Todas las pruebas pasaron.' : fallas + ' falla(s).'}`);
 process.exit(fallas ? 1 : 0);

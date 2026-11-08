@@ -1,7 +1,8 @@
 // RF-05: validación pura del formulario de reserva.
 // RF-09, RF-11, RF-14: validación pura de los formularios del administrador.
 // F3: validación pura del acceso de personal, del cambio de clave y de las cuentas de personal.
-import { CATEGORIAS, ZONAS } from '../constants/dominio';
+import { CATEGORIAS, TIPOS_PAGO, ZONAS } from '../constants/dominio';
+import { LONGITUD_CODIGO } from './codigos';
 
 export function validarReserva(form, capacidad) {
   const errores = {};
@@ -110,5 +111,31 @@ export function validarRol(form, { nuevo = true } = {}) {
   if (nombre.length < 2 || nombre.length > 60) errores.nombre = 'Escribe un nombre de 2 a 60 caracteres.';
   if (String(form.descripcion ?? '').trim().length > 200) errores.descripcion = 'Máximo 200 caracteres.';
   if (!['global', 'sede'].includes(form.alcance)) errores.alcance = 'Elige un alcance válido.';
+  return { valido: Object.keys(errores).length === 0, errores };
+}
+
+// F4 (16b): método de pago simulado. Los límites coinciden con el CHECK de metodos_pago.
+export function validarMetodoPago(form) {
+  const errores = {};
+  if (!TIPOS_PAGO[form.tipo]) errores.tipo = 'Elige un tipo de método de pago.';
+  const titular = String(form.titular ?? '').trim();
+  if (titular.length < 2 || titular.length > 80) errores.titular = 'Escribe el titular de 2 a 80 caracteres.';
+  const llave = String(form.llave ?? '').trim();
+  if (llave.length < 1 || llave.length > 120) errores.llave = 'Escribe la llave o cuenta (máximo 120 caracteres).';
+  if (String(form.instrucciones ?? '').trim().length > 200) errores.instrucciones = 'Máximo 200 caracteres.';
+  return { valido: Object.keys(errores).length === 0, errores };
+}
+
+// F5 (17): código de la reserva (8 caracteres) y puntuación de 1 a 5 estrellas.
+export function validarCalificacion(form) {
+  const errores = {};
+  const codigo = String(form.codigo ?? '').trim();
+  if (!/^[A-Za-z0-9]+$/.test(codigo) || codigo.length !== LONGITUD_CODIGO) {
+    errores.codigo = `Escribe el código de ${LONGITUD_CODIGO} caracteres que aparece en tu confirmación.`;
+  }
+  const puntuacion = Number(form.puntuacion);
+  if (!Number.isInteger(puntuacion) || puntuacion < 1 || puntuacion > 5) {
+    errores.puntuacion = 'Elige de 1 a 5 estrellas.';
+  }
   return { valido: Object.keys(errores).length === 0, errores };
 }

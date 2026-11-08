@@ -1,4 +1,4 @@
-import { agruparPrivilegios, alternarPrivilegio, esAdminGeneral, evaluarIngreso, ordenarRoles, primerNombre, puede, puedeGestionarPerfil, resumenPrivilegios, resumenRol, rolesAsignables, tarjetasPanel } from '../permisos';
+import { agruparPrivilegios, alternarPrivilegio, esAdminGeneral, evaluarIngreso, horaTolerancia, limiteTolerancia, ordenarRoles, primerNombre, puede, puedeGestionarPerfil, puedeLiberar, resumenPrivilegios, resumenRol, rolesAsignables, tarjetasPanel } from '../permisos';
 
 // Matriz de 002_roles (D-05): 15 / 13 / 7 / 5 / 2 / 1.
 const TODOS = ['sedes.gestionar', 'roles.gestionar', 'usuarios.gestionar', 'mesas.ver', 'mesas.gestionar',
@@ -64,8 +64,8 @@ describe('U-06: acceso de personal', () => {
   });
 
   it.each([
-    ['admin_sede', ['reservas', 'mesas', 'horarios', 'carta', 'personal']],
-    ['recepcion', ['reservas', 'mesas']],
+    ['admin_sede', ['reservas', 'mesas', 'horarios', 'carta', 'personal', 'pagos', 'calificaciones']],
+    ['recepcion', ['reservas', 'mesas', 'calificaciones']],
     ['mesero', ['reservas', 'mesas']],
     ['jefe_cocina', ['carta']],
     ['cocina', ['carta']],
@@ -186,5 +186,39 @@ describe('U-07: roles y permisos (F3, 15/15b/15c)', () => {
       .toEqual(['reservas.ver']);
     expect(alternarPrivilegio(['reservas.ver', 'reservas.completar'], 'reservas.completar'))
       .toEqual(['reservas.ver']);
+  });
+});
+
+describe('F4: tolerancia de 10 minutos (RN-14, D-02)', () => {
+  const reserva = { estado: 'confirmada', fecha: '2026-10-29', hora_inicio: '20:00:00' };
+  const antes = new Date(2026, 9, 29, 20, 9);
+  const justo = new Date(2026, 9, 29, 20, 10);
+
+  it('calcula la hora límite y la muestra como HH:MM', () => {
+    expect(limiteTolerancia(reserva)).toEqual(new Date(2026, 9, 29, 20, 10));
+    expect(horaTolerancia(reserva)).toBe('20:10');
+    expect(limiteTolerancia(null)).toBeNull();
+    expect(horaTolerancia({})).toBeNull();
+  });
+
+  it('solo libera con reservas.liberar, estado confirmada y pasados 10 minutos', () => {
+    expect(puedeLiberar(reserva, perfil('mesero'), antes)).toBe(false);
+    expect(puedeLiberar(reserva, perfil('mesero'), justo)).toBe(true);
+    expect(puedeLiberar(reserva, perfil('jefe_cocina'), justo)).toBe(false);
+    expect(puedeLiberar({ ...reserva, estado: 'completada' }, perfil('mesero'), justo)).toBe(false);
+    expect(puedeLiberar(null, perfil('mesero'), justo)).toBe(false);
+  });
+
+  it('la tarjeta de métodos de pago exige pagos.gestionar, no solo pagos.ver', () => {
+    expect(claves(perfil('mesero', { privilegios: ['pagos.ver', 'reservas.ver'] }))).toEqual(['reservas']);
+  });
+});
+
+describe('F5: calificaciones (RN-15)', () => {
+  it('la tarjeta de calificaciones exige calificaciones.ver', () => {
+    expect(claves(perfil('recepcion'))).toContain('calificaciones');
+    expect(claves(perfil('cocina'))).not.toContain('calificaciones');
+    const detalle = tarjetasPanel(perfil('recepcion')).find((t) => t.clave === 'calificaciones').detalle;
+    expect(detalle).toBe('Promedio y calificaciones de la sede');
   });
 });

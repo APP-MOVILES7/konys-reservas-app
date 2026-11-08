@@ -1,6 +1,9 @@
 // F3 (I-02, D-05, D-07): reglas puras de acceso del personal (mockups 05a a 05e).
 // Solo deciden qué mostrar y a dónde ir. La seguridad real está en la base: RLS de
 // 002_roles con puede(privilegio, sede); si la app se equivoca, la base rechaza.
+// F4: también decide cuándo se puede liberar una mesa (10 minutos, RN-14).
+import { MINUTOS_TOLERANCIA } from '../constants/dominio';
+import { leerFecha } from './slots';
 
 // ¿El perfil tiene al menos uno de los privilegios?
 export function puede(perfil, ...claves) {
@@ -8,8 +11,8 @@ export function puede(perfil, ...claves) {
   return claves.some((clave) => propios.includes(clave));
 }
 
-// Tarjetas del panel de la sede (05c/05d), en el orden del mockup. Solo las secciones que ya
-// tienen pantalla: Personal (3C), Métodos de pago (F4) y Calificaciones (F5) se agregan después.
+// Tarjetas del panel de la sede (05c/05d), en el orden del mockup: Reservas, Mesas, Horarios,
+// Carta, Personal, Métodos de pago y Calificaciones. Solo las que el rol puede ver.
 const TARJETAS = [
   {
     clave: 'reservas', titulo: 'Reservas', icono: 'calendar-outline', ruta: '/gestion/reservas',
@@ -36,6 +39,16 @@ const TARJETAS = [
     clave: 'personal', titulo: 'Personal', icono: 'people-outline', ruta: '/gestion/personal',
     ver: ['usuarios.gestionar'],
     detalle: () => 'Cuentas, roles y acceso',
+  },
+  {
+    clave: 'pagos', titulo: 'Métodos de pago', icono: 'card-outline', ruta: '/gestion/metodos-pago',
+    ver: ['pagos.gestionar'],
+    detalle: () => 'Llaves y cuentas de la sede',
+  },
+  {
+    clave: 'calificaciones', titulo: 'Calificaciones', icono: 'star-outline', ruta: '/gestion/calificaciones',
+    ver: ['calificaciones.ver'],
+    detalle: () => 'Promedio y calificaciones de la sede',
   },
 ];
 
@@ -173,4 +186,31 @@ export function agruparPrivilegios(privilegios = []) {
 // "Hola, Jorge": solo el primer nombre.
 export function primerNombre(perfil) {
   return String(perfil?.nombre ?? '').trim().split(/\s+/)[0] || 'equipo';
+}
+
+// F4 (RN-14, D-02): momento en que se puede liberar la mesa = hora_inicio + 10 min.
+// La fecha y la hora se leen como locales, igual que toda la app.
+export function limiteTolerancia(reserva) {
+  if (!reserva?.fecha || !reserva?.hora_inicio) return null;
+  const [horas, minutos] = String(reserva.hora_inicio).split(':').map(Number);
+  const limite = leerFecha(reserva.fecha);
+  limite.setHours(horas, minutos + MINUTOS_TOLERANCIA, 0, 0);
+  return limite;
+}
+
+// "No asistió" solo para reservas confirmadas, con `reservas.liberar` y pasados
+// los 10 minutos. La base repite la comprobación; esto solo evita ofrecerlo antes.
+export function puedeLiberar(reserva, perfil, ahora = new Date()) {
+  const limite = limiteTolerancia(reserva);
+  return Boolean(
+    reserva && limite && reserva.estado === 'confirmada'
+      && puede(perfil, 'reservas.liberar') && ahora >= limite,
+  );
+}
+
+// "HH:MM" de la hora mínima de liberación (para "disponible desde 20:10").
+export function horaTolerancia(reserva) {
+  const limite = limiteTolerancia(reserva);
+  if (!limite) return null;
+  return `${String(limite.getHours()).padStart(2, '0')}:${String(limite.getMinutes()).padStart(2, '0')}`;
 }

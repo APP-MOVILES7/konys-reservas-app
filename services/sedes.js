@@ -34,6 +34,12 @@ export function cambiarEstado(id, activa) {
   return actualizar(id, { activa });
 }
 
+// F4 (D-03, excepción aprobada a RN-06): eliminación definitiva de una sede. Solo el
+// admin general y nunca la principal; la función del servidor borra reservas y personal.
+export function eliminar(id) {
+  return consultar(() => supabase.rpc('eliminar_sede', { p_sede_id: id }));
+}
+
 // Decisión 2.4: con una sola sede activa no se obliga a elegir. Solo aplica al primer arranque;
 // al volver a la bienvenida se muestra la lista para que la rueda de ajustes siga accesible.
 export function entradaDirecta(sedes, primerArranque) {

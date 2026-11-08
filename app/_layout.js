@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { hideAsync, preventAutoHideAsync, setOptions } from 'expo-splash-screen';
 import { colors } from '../constants/colors';
 import { ReservaProvider } from '../hooks/ReservaConfirmada';
+import { ReservaPendienteProvider } from '../hooks/ReservaPendiente';
 import { SedeProvider } from '../hooks/SedeSeleccionada';
 import { SesionPersonalProvider } from '../hooks/SesionPersonal';
 
@@ -15,14 +16,18 @@ setOptions({ duration: 400, fade: true });
 export default function RootLayout() {
   useEffect(() => { hideAsync(); }, []);
 
-  return <SedeProvider><SesionPersonalProvider><ReservaProvider>
+  return <SedeProvider><SesionPersonalProvider><ReservaProvider><ReservaPendienteProvider>
     <StatusBar style="dark" />
     <Stack screenOptions={{ headerTintColor: colors.primario, headerStyle: { backgroundColor: colors.blanco }, contentStyle: { backgroundColor: colors.fondo } }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="bienvenida" options={{ headerShown: false, animation: 'fade' }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="reservar/[mesaId]" options={{ title: 'Reservar mesa' }} />
+      {/* F4: pago simulado (02c) antes de crear la reserva. */}
+      <Stack.Screen name="pago" options={{ title: 'Pagar reserva' }} />
       <Stack.Screen name="confirmacion" options={{ headerShown: false, gestureEnabled: false }} />
+      {/* F5: el cliente califica con el código de su reserva (17 y 17b). */}
+      <Stack.Screen name="calificar" options={{ title: 'Calificar mi visita' }} />
       {/* F3: acceso de personal por la rueda de ajustes (05a), clave temporal (05e) y paneles (05b, 05c/05d). */}
       <Stack.Screen name="acceso" options={{ title: 'Ajustes' }} />
       <Stack.Screen name="cambiar-clave" options={{ title: 'Cambiar clave', headerBackVisible: false, gestureEnabled: false }} />
@@ -37,11 +42,16 @@ export default function RootLayout() {
       <Stack.Screen name="gestion/horarios" options={{ title: 'Horarios' }} />
       <Stack.Screen name="gestion/mesa-form" options={{ title: 'Mesa' }} />
       <Stack.Screen name="gestion/carta" options={{ title: 'Carta' }} />
+      {/* F4: métodos de pago de la sede (16 y 16b). */}
+      <Stack.Screen name="gestion/metodos-pago" options={{ title: 'Métodos de pago' }} />
+      <Stack.Screen name="gestion/metodo-pago-form" options={{ title: 'Método de pago' }} />
+      {/* F5: calificaciones de la sede (18). */}
+      <Stack.Screen name="gestion/calificaciones" options={{ title: 'Calificaciones' }} />
       {/* F3C: personal de la sede (14, 14c) y nuevo o editar usuario (14b). */}
       <Stack.Screen name="gestion/personal" options={{ title: 'Personal' }} />
       <Stack.Screen name="gestion/usuario-form" options={{ title: 'Usuario' }} />
       <Stack.Screen name="gestion/sedes" options={{ title: 'Sedes' }} />
       <Stack.Screen name="gestion/sede-form" options={{ title: 'Sede' }} />
     </Stack>
-  </ReservaProvider></SesionPersonalProvider></SedeProvider>;
+  </ReservaPendienteProvider></ReservaProvider></SesionPersonalProvider></SedeProvider>;
 }

@@ -32,6 +32,11 @@ describe('U-03: errores', () => {
     [{ message: 'KONYS_CLAVE_DEBIL' }, 'La clave temporal es muy fácil de adivinar. Elige otra.'],
     [{ message: 'KONYS_FUNCION_NO_DISPONIBLE' }, 'La gestión de cuentas aún no está publicada en el servidor.'],
     [{ message: 'KONYS_SESION_VENCIDA' }, 'Tu sesión se cerró en el servidor. Cierra sesión y vuelve a ingresar.'],
+    [{ message: 'KONYS_PUNTUACION_INVALIDA' }, 'Elige de 1 a 5 estrellas.'],
+    [{ message: 'KONYS_RESERVA_NO_ENCONTRADA' }, 'No encontramos una reserva con ese código. Revísalo en tu confirmación.'],
+    [{ message: 'KONYS_RESERVA_NO_COMPLETADA' }, 'Solo puedes calificar una visita que ya se completó.'],
+    [{ code: '23505', message: 'duplicate key value violates unique constraint "calificaciones_reserva_id_key"' }, 'Ya calificaste esta visita.'],
+    [{ code: '23505', message: 'duplicate key value violates unique constraint "reservas_codigo_key"' }, 'No se pudo generar un código único. Vuelve a intentar.'],
     [{ message: 'detalle interno privado' }, 'No pudimos completar la solicitud. Vuelve a intentar.'],
   ])('traduce %j', (error, esperado) => expect(traducir(error)).toBe(esperado));
 

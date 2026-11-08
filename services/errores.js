@@ -19,6 +19,10 @@ export function traducir(error) {
   if (mensaje.includes('roles_codigo_key')) return 'Ya existe un rol con ese código.';
   if (mensaje.includes('perfiles_email_key')) return 'Ya existe un usuario con ese correo.';
   if (mensaje.includes('perfiles_rol_id_fkey')) return 'El rol tiene usuarios asignados; reasígnalos antes de suprimirlo.';
+  // F5: una reserva solo se califica una vez.
+  if (mensaje.includes('calificaciones_reserva_id_key')) return 'Ya calificaste esta visita.';
+  // F5: choque improbable del código generado en la app.
+  if (mensaje.includes('reservas_codigo_key')) return 'No se pudo generar un código único. Vuelve a intentar.';
   const mensajes = {
     '23P01': 'Ese horario acaba de ser reservado. Elige otro.',
     KONYS_MESA_NO_DISPONIBLE: 'La mesa ya no está disponible.',
@@ -31,6 +35,14 @@ export function traducir(error) {
     KONYS_PERFIL_SEDE: 'El rol elegido no corresponde a la sede del usuario.',
     KONYS_ROL_PROTEGIDO: 'Este rol del sistema no se puede modificar ni suprimir.',
     KONYS_PRIVILEGIO_GLOBAL: 'Los permisos globales solo se asignan a roles de alcance global.',
+    // F4: pago simulado y ciclo de la reserva.
+    KONYS_PAGO_REQUERIDO: 'Marca "Ya pagué" antes de confirmar la reserva.',
+    KONYS_TOLERANCIA: 'Todavía no se puede liberar la mesa: deben pasar 10 minutos desde la hora de inicio.',
+    KONYS_SIN_PERMISO: 'Tu rol no permite eliminar sedes.',
+    // F5: calificaciones por código.
+    KONYS_PUNTUACION_INVALIDA: 'Elige de 1 a 5 estrellas.',
+    KONYS_RESERVA_NO_ENCONTRADA: 'No encontramos una reserva con ese código. Revísalo en tu confirmación.',
+    KONYS_RESERVA_NO_COMPLETADA: 'Solo puedes calificar una visita que ya se completó.',
     // F3C: respuestas de las Edge Functions crear-usuario y eliminar-usuario.
     KONYS_CORREO_EXISTE: 'Ya existe una cuenta con ese correo.',
     KONYS_ROL_INVALIDO: 'El rol elegido no existe o está oculto.',

@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 import { ZONAS } from '../constants/dominio';
+import { fotoLocalMesa } from '../constants/fotosMesas';
 import Foto from './Foto';
 
 export default function MesaCard({ mesa, onPress }) {
@@ -9,7 +10,7 @@ export default function MesaCard({ mesa, onPress }) {
     <Pressable onPress={onPress} accessibilityRole="button"
       accessibilityLabel={`${mesa.nombre}, ${ZONAS[mesa.zona]}, hasta ${mesa.capacidad} personas. Reservar mesa`}
       style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}>
-      <Foto uri={mesa.foto_url} nombre={mesa.nombre} />
+      <Foto uri={mesa.foto_url} fuente={fotoLocalMesa(mesa.nombre)} nombre={mesa.nombre} />
       <View style={styles.contenido}>
         <Text style={styles.nombre}>{mesa.nombre}</Text>
         <Text style={styles.detalle}>{ZONAS[mesa.zona]}</Text>

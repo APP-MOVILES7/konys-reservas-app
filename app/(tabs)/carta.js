@@ -9,6 +9,7 @@ import { listar } from '../../services/platos';
 import { useSede } from '../../hooks/SedeSeleccionada';
 import BotonCambiarSede from '../../components/BotonCambiarSede';
 import EstadoPantalla from '../../components/EstadoPantalla';
+import FondoApp from '../../components/FondoApp';
 import PlatoItem from '../../components/PlatoItem';
 
 export default function CartaScreen() {
@@ -31,29 +32,31 @@ export default function CartaScreen() {
 
   if (!sede) return <Redirect href="/bienvenida" />;
 
-  return <SafeAreaView style={styles.pantalla} edges={['top']}>
-    <View style={styles.cabecera}>
-      <Text accessibilityRole="header" style={styles.titulo}>Carta</Text>
-      {/* En la carta el botón muestra el nombre de la sede (mockup 04). */}
-      <BotonCambiarSede titulo={sede.nombre} onPress={() => router.replace('/bienvenida')} />
-    </View>
-    <View><ScrollView horizontal contentContainerStyle={styles.categorias} showsHorizontalScrollIndicator={false}>
-      {Object.entries(CATEGORIAS).map(([valor, etiqueta]) => <Pressable key={valor} onPress={() => setCategoria(valor)}
-        accessibilityRole="button" accessibilityState={{ selected: categoria === valor }}
-        style={[styles.chip, categoria === valor && styles.elegido]}>
-        <Text style={[styles.texto, categoria === valor && styles.claro]}>{etiqueta}</Text>
-      </Pressable>)}
-    </ScrollView></View>
-    {estado.cargando ? <EstadoPantalla cargando /> : estado.error ? <EstadoPantalla mensaje={estado.error} onReintentar={cargar} />
-      : <FlatList data={(estado.data ?? []).filter((p) => p.categoria === categoria)}
-        keyExtractor={(p) => p.id} contentContainerStyle={styles.lista} onRefresh={cargar} refreshing={estado.cargando}
-        ListEmptyComponent={<EstadoPantalla mensaje="No hay platos disponibles en esta categoría." />}
-        renderItem={({ item }) => <PlatoItem plato={item} />} />}
-  </SafeAreaView>;
+  return <FondoApp>
+    <SafeAreaView style={styles.pantalla} edges={['top']}>
+      <View style={styles.cabecera}>
+        <Text accessibilityRole="header" style={styles.titulo}>Carta</Text>
+        {/* En la carta el botón muestra el nombre de la sede (mockup 04). */}
+        <BotonCambiarSede titulo={sede.nombre} onPress={() => router.replace('/bienvenida')} />
+      </View>
+      <View><ScrollView horizontal contentContainerStyle={styles.categorias} showsHorizontalScrollIndicator={false}>
+        {Object.entries(CATEGORIAS).map(([valor, etiqueta]) => <Pressable key={valor} onPress={() => setCategoria(valor)}
+          accessibilityRole="button" accessibilityState={{ selected: categoria === valor }}
+          style={[styles.chip, categoria === valor && styles.elegido]}>
+          <Text style={[styles.texto, categoria === valor && styles.claro]}>{etiqueta}</Text>
+        </Pressable>)}
+      </ScrollView></View>
+      {estado.cargando ? <EstadoPantalla cargando /> : estado.error ? <EstadoPantalla mensaje={estado.error} onReintentar={cargar} />
+        : <FlatList data={(estado.data ?? []).filter((p) => p.categoria === categoria)}
+          keyExtractor={(p) => p.id} contentContainerStyle={styles.lista} onRefresh={cargar} refreshing={estado.cargando}
+          ListEmptyComponent={<EstadoPantalla mensaje="No hay platos disponibles en esta categoría." />}
+          renderItem={({ item }) => <PlatoItem plato={item} />} />}
+    </SafeAreaView>
+  </FondoApp>;
 }
 
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1 },
   cabecera: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingHorizontal: 16, paddingTop: 16 },
   titulo: { fontSize: 26, fontWeight: '800', color: colors.primario },
   categorias: { padding: 16, gap: 8 },

@@ -6,10 +6,10 @@ import { colors } from '../../constants/colors';
 import { JORNADAS, ZONAS } from '../../constants/dominio';
 import { obtenerActiva } from '../../services/mesas';
 import { listar } from '../../services/horarios';
-import { crear, slotsOcupados } from '../../services/reservas';
+import { slotsOcupados } from '../../services/reservas';
 import { generarFechas, generarSlots, leerFecha } from '../../services/slots';
 import { validarReserva } from '../../services/validaciones';
-import { useReservaConfirmada } from '../../hooks/ReservaConfirmada';
+import { useReservaPendiente } from '../../hooks/ReservaPendiente';
 import { useSede } from '../../hooks/SedeSeleccionada';
 import Boton from '../../components/Boton';
 import EstadoPantalla from '../../components/EstadoPantalla';
@@ -20,7 +20,7 @@ const formularioInicial = { cliente_nombre: '', num_personas: '1', cliente_conta
 
 export default function ReservarScreen() {
   const { mesaId } = useLocalSearchParams();
-  const { setReserva } = useReservaConfirmada();
+  const { setPendiente } = useReservaPendiente();
   const { sede } = useSede();
   const [base, setBase] = useState({ mesa: null, horarios: [], cargando: true, error: null });
   const [fecha, setFecha] = useState(null);
@@ -29,17 +29,13 @@ export default function ReservarScreen() {
   const [form, setForm] = useState(formularioInicial);
   const [ahora, setAhora] = useState(new Date());
   const [recarga, setRecarga] = useState(0);
-  const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState(null);
-  const bloqueo = useRef(false);
   const solicitudBase = useRef(0);
-  const montada = useRef(true);
   const claveDisponibilidad = `${mesaId}|${fecha}|${recarga}`;
 
   useEffect(() => {
-    montada.current = true;
     const reloj = setInterval(() => setAhora(new Date()), 15000);
-    return () => { montada.current = false; clearInterval(reloj); };
+    return () => clearInterval(reloj);
   }, []);
 
   const cargarBase = useCallback(async () => {
@@ -85,28 +81,21 @@ export default function ReservarScreen() {
   const validacion = validarReserva(form, base.mesa?.capacidad ?? 0);
   const cambiar = (campo, valor) => setForm((anterior) => ({ ...anterior, [campo]: valor }));
 
-  async function confirmar() {
-    if (bloqueo.current || !validacion.valido || !elegido || !fechaHabilitada) return;
-    bloqueo.current = true;
-    setEnviando(true);
+  // F4 (02c): la reserva aún no se crea. Se guarda el resumen en memoria y el pago
+  // confirma con "Ya pagué". Si el horario se ocupa mientras tanto, pago vuelve aquí.
+  function continuarAlPago() {
+    if (!validacion.valido || !elegido || !fechaHabilitada) return;
+    setPendiente({
+      mesaId,
+      mesa: base.mesa,
+      sede: { id: base.mesa.sede_id, nombre: sede?.nombre ?? null },
+      fecha,
+      hora_inicio: elegido.hora_inicio,
+      hora_fin: elegido.hora_fin,
+      form,
+    });
     setAviso(null);
-    try {
-      const resultado = await crear(mesaId, fecha, elegido.hora_inicio, form);
-      if (!montada.current) return;
-      if (resultado.error) {
-        setAviso(resultado.error);
-        setHora(null);
-        await cargarBase();
-      } else {
-        setReserva({ ...resultado.data, sede_nombre: sede?.nombre ?? null });
-        // La confirmación reemplaza toda la pila para impedir volver al formulario enviado.
-        router.dismissAll();
-        router.replace('/confirmacion');
-      }
-    } finally {
-      bloqueo.current = false;
-      if (montada.current) setEnviando(false);
-    }
+    router.push('/pago');
   }
 
   if (base.cargando) return <EstadoPantalla cargando />;
@@ -121,7 +110,7 @@ export default function ReservarScreen() {
       </View>
       {aviso && <Text accessibilityRole="alert" style={styles.error}>{aviso}</Text>}
       <Text accessibilityRole="header" style={styles.titulo}>Fecha</Text>
-      <SelectorFecha fechas={fechas} seleccionada={fecha} disabled={enviando} onChange={(valor) => { setFecha(valor); setHora(null); setAviso(null); }} />
+      <SelectorFecha fechas={fechas} seleccionada={fecha} onChange={(valor) => { setFecha(valor); setHora(null); setAviso(null); }} />
       {!fechaHabilitada ? <EstadoPantalla mensaje="No hay horarios futuros para esta fecha. Elige otro día habilitado." onReintentar={cargarBase} />
         : !listaLista ? <EstadoPantalla cargando={!disponibilidadVigente}
           mensaje={disponibilidad.error} onReintentar={disponibilidadVigente && disponibilidad.error ? () => setRecarga((n) => n + 1) : undefined} />
@@ -130,7 +119,7 @@ export default function ReservarScreen() {
             <Text style={styles.titulo}>{etiqueta}</Text>
             <View style={styles.grilla}>{slots.filter((s) => s.jornada === jornada).map((slot) =>
               <SlotButton key={slot.hora_inicio} slot={slot} seleccionado={elegido?.hora_inicio === slot.hora_inicio}
-                disabled={enviando} onPress={() => { setHora(slot.hora_inicio); setAviso(null); }} />)}</View>
+                onPress={() => { setHora(slot.hora_inicio); setAviso(null); }} />)}</View>
             {!slots.some((s) => s.jornada === jornada) && <Text style={styles.secundario}>Sin jornada habilitada.</Text>}
           </View>)}
           <View style={styles.leyenda}>
@@ -145,23 +134,23 @@ export default function ReservarScreen() {
       <View style={styles.grupo}>
         <Text style={styles.etiqueta}>Nombre</Text>
         <TextInput accessibilityLabel="Nombre" value={form.cliente_nombre} onChangeText={(v) => cambiar('cliente_nombre', v)}
-          autoCapitalize="words" autoComplete="name" editable={!enviando} style={styles.input} />
+          autoCapitalize="words" autoComplete="name" style={styles.input} />
         {!!form.cliente_nombre && validacion.errores.cliente_nombre && <Text style={styles.error}>{validacion.errores.cliente_nombre}</Text>}
       </View>
       <View style={styles.grupo}>
         <Text style={styles.etiqueta}>Personas (máximo {base.mesa.capacidad})</Text>
         <TextInput accessibilityLabel={`Personas, máximo ${base.mesa.capacidad}`} value={form.num_personas}
-          onChangeText={(v) => cambiar('num_personas', v)} keyboardType="number-pad" editable={!enviando} style={styles.input} />
+          onChangeText={(v) => cambiar('num_personas', v)} keyboardType="number-pad" style={styles.input} />
         {validacion.errores.num_personas && <Text style={styles.error}>{validacion.errores.num_personas}</Text>}
       </View>
       <View style={styles.grupo}>
         <Text style={styles.etiqueta}>Teléfono (opcional)</Text>
         <TextInput accessibilityLabel="Teléfono opcional" value={form.cliente_contacto} onChangeText={(v) => cambiar('cliente_contacto', v)}
-          keyboardType="phone-pad" autoComplete="tel" editable={!enviando} style={styles.input} />
+          keyboardType="phone-pad" autoComplete="tel" style={styles.input} />
         {validacion.errores.cliente_contacto && <Text style={styles.error}>{validacion.errores.cliente_contacto}</Text>}
       </View>
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: form.acepta_tratamiento_datos, disabled: enviando }}
-        disabled={enviando} onPress={() => cambiar('acepta_tratamiento_datos', !form.acepta_tratamiento_datos)} style={styles.consentimiento}>
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: form.acepta_tratamiento_datos }}
+        onPress={() => cambiar('acepta_tratamiento_datos', !form.acepta_tratamiento_datos)} style={styles.consentimiento}>
         <Ionicons name={form.acepta_tratamiento_datos ? 'checkbox' : 'square-outline'} size={26} color={colors.primario} />
         <Text style={styles.autorizacion}>Autorizo el tratamiento de mis datos personales por Konys Pizza para gestionar esta reserva (Ley 1581 de 2012).</Text>
       </Pressable>
@@ -173,8 +162,8 @@ export default function ReservarScreen() {
         <Text style={styles.secundario}>{form.num_personas || '—'} personas · {form.cliente_nombre.trim() || 'Indica tu nombre'}</Text>
       </View>
       {!form.acepta_tratamiento_datos && <Text style={styles.secundario}>{validacion.errores.acepta_tratamiento_datos}</Text>}
-      <Boton titulo="Confirmar reserva" cargando={enviando}
-        disabled={!validacion.valido || !elegido || !fechaHabilitada || !listaLista} onPress={confirmar} />
+      <Boton titulo="Continuar al pago"
+        disabled={!validacion.valido || !elegido || !fechaHabilitada || !listaLista} onPress={continuarAlPago} />
     </ScrollView>
   </KeyboardAvoidingView>;
 }

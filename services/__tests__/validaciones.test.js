@@ -1,4 +1,4 @@
-import { validarAcceso, validarClaveNueva, validarUsuario, validarRol, validarMesa, validarPlato, validarHorario, validarReserva } from '../validaciones';
+import { validarAcceso, validarCalificacion, validarClaveNueva, validarUsuario, validarRol, validarMesa, validarMetodoPago, validarPlato, validarHorario, validarReserva } from '../validaciones';
 
 const base = { cliente_nombre: 'Laura Gómez', num_personas: '4', cliente_contacto: '', acepta_tratamiento_datos: true };
 describe('U-02: formulario de reserva', () => {
@@ -114,5 +114,39 @@ describe('U-07: rol (F3, 15b/15c)', () => {
     expect(validarRol({ ...base, nombre: 'a' }).errores.nombre).toBeDefined();
     expect(validarRol({ ...base, descripcion: 'd'.repeat(201) }).errores.descripcion).toBeDefined();
     expect(validarRol({ ...base, alcance: 'otro' }).errores.alcance).toBeDefined();
+  });
+});
+
+describe('F4: método de pago (16b)', () => {
+  const base = { tipo: 'bre-b', titular: 'Konys Pizza S.A.S.', llave: '@konyscabecera', instrucciones: 'Muestra el comprobante al llegar.' };
+  it('acepta un método válido y sus límites', () => {
+    expect(validarMetodoPago(base).valido).toBe(true);
+    expect(validarMetodoPago({ ...base, titular: 'ab', llave: 'x', instrucciones: '' }).valido).toBe(true);
+    expect(validarMetodoPago({ ...base, titular: 'a'.repeat(80), llave: 'l'.repeat(120), instrucciones: 'i'.repeat(200) }).valido).toBe(true);
+  });
+  it.each([
+    { tipo: 'pse' },
+    { titular: 'a' },
+    { titular: 'a'.repeat(81) },
+    { llave: '' },
+    { llave: 'l'.repeat(121) },
+    { instrucciones: 'i'.repeat(201) },
+  ])('rechaza %j', (cambio) => {
+    expect(validarMetodoPago({ ...base, ...cambio }).valido).toBe(false);
+  });
+});
+
+describe('F5: calificación (17)', () => {
+  it('acepta un código de 8 caracteres y 1 a 5 estrellas', () => {
+    for (const puntuacion of [1, '3', 5]) {
+      expect(validarCalificacion({ codigo: 'K7Q2M9XD', puntuacion }).valido).toBe(true);
+    }
+    expect(validarCalificacion({ codigo: ' k7q2m9xd ', puntuacion: 4 }).valido).toBe(true);
+  });
+  it.each(['', 'K7Q2M9X', 'K7Q2M9XDX', 'K7Q2M9-D', 'K7Q2M9 D'])('rechaza el código %j', (codigo) => {
+    expect(validarCalificacion({ codigo, puntuacion: 5 }).errores.codigo).toBeDefined();
+  });
+  it.each([0, 6, -1, 2.5, '', 'abc', undefined])('rechaza la puntuación %j', (puntuacion) => {
+    expect(validarCalificacion({ codigo: 'K7Q2M9XD', puntuacion }).errores.puntuacion).toBeDefined();
   });
 });

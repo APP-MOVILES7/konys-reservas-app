@@ -3,7 +3,6 @@
 import { useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Redirect } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 import { evaluarIngreso } from '../services/permisos';
 import { validarAcceso } from '../services/validaciones';
@@ -11,7 +10,9 @@ import { useSesionPersonal } from '../hooks/SesionPersonal';
 import Boton from '../components/Boton';
 import Campo from '../components/Campo';
 import EstadoPantalla from '../components/EstadoPantalla';
+import FondoApp from '../components/FondoApp';
 import Footer from '../components/Footer';
+import Logo from '../components/Logo';
 
 export default function AccesoScreen() {
   const { cargando, perfil, ingresar } = useSesionPersonal();
@@ -45,28 +46,30 @@ export default function AccesoScreen() {
     }
   }
 
-  return <KeyboardAvoidingView style={styles.pantalla} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={80}>
-    <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
-      <View style={styles.cabecera}>
-        <Ionicons name="lock-closed-outline" size={44} color={colors.texto} />
-        <Text accessibilityRole="header" style={styles.titulo}>Acceso de personal</Text>
-        <Text style={styles.secundario}>Ingresa con el correo y la clave que te asignaron. Entrarás a tu sede con los permisos de tu rol.</Text>
-      </View>
-      {!!aviso && <Text accessibilityRole="alert" style={styles.aviso}>{aviso}</Text>}
-      <Campo etiqueta="Correo" value={form.correo} onChangeText={(v) => cambiar('correo', v)}
-        keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="username"
-        editable={!enviando} error={tocado ? validacion.errores.correo : null} />
-      <Campo etiqueta="Clave" value={form.clave} onChangeText={(v) => cambiar('clave', v)}
-        secureTextEntry autoCapitalize="none" autoComplete="password" textContentType="password"
-        editable={!enviando} onSubmitEditing={enviar} error={tocado ? validacion.errores.clave : null} />
-      <View style={styles.boton}><Boton titulo="Ingresar" cargando={enviando} onPress={enviar} /></View>
-      <View style={styles.pie}><Footer /></View>
-    </ScrollView>
-  </KeyboardAvoidingView>;
+  return <FondoApp>
+    <KeyboardAvoidingView style={styles.pantalla} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={80}>
+      <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
+        <View style={styles.cabecera}>
+          <Logo tamano={88} />
+          <Text accessibilityRole="header" style={styles.titulo}>Acceso de personal</Text>
+          <Text style={styles.secundario}>Ingresa con el correo y la clave que te asignaron. Entrarás a tu sede con los permisos de tu rol.</Text>
+        </View>
+        {!!aviso && <Text accessibilityRole="alert" style={styles.aviso}>{aviso}</Text>}
+        <Campo etiqueta="Correo" value={form.correo} onChangeText={(v) => cambiar('correo', v)}
+          keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="username"
+          editable={!enviando} error={tocado ? validacion.errores.correo : null} />
+        <Campo etiqueta="Clave" value={form.clave} onChangeText={(v) => cambiar('clave', v)}
+          secureTextEntry autoCapitalize="none" autoComplete="password" textContentType="password"
+          editable={!enviando} onSubmitEditing={enviar} error={tocado ? validacion.errores.clave : null} />
+        <View style={styles.boton}><Boton titulo="Ingresar" cargando={enviando} onPress={enviar} /></View>
+        <View style={styles.pie}><Footer /></View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  </FondoApp>;
 }
 
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1 },
   contenido: { flexGrow: 1, padding: 16, gap: 14 },
   cabecera: { alignItems: 'center', gap: 10, paddingTop: 24, paddingBottom: 6 },
   titulo: { fontSize: 24, fontWeight: '800', color: colors.texto, textAlign: 'center' },

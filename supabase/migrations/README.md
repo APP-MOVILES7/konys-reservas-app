@@ -12,8 +12,11 @@ numerada (decisión de la fase F0, 2026-11-06).
   - `001_sedes` (F2): aplicada a mano en producción y staging (2026-11-06), sin registro en el historial.
   - `002_roles` (F3A): escrita el 2026-11-06 y probada en PostgreSQL embebido con
     `../pruebas/banco_roles.mjs` (58 comprobaciones). Aplicada a mano en producción y staging el 2026-11-06, sin registro en el historial.
-  - Previstas: `003_pagos.sql` (F4) y `004_calificaciones.sql` (F5). El SQL de referencia está en
-    `documentación/FASES_IMPLEMENTACION_IDEAS.md`.
+  - `003_pagos` (F4): escrita el 2026-11-07 (métodos de pago, `pago_reportado`, `no_asistio`,
+    tolerancia de 10 min y `eliminar_sede`). Aplicada en Supabase por el equipo.
+  - `004_calificaciones` (F5): escrita el 2026-11-07 (`codigo` en reservas, tabla `calificaciones`,
+    `calificar_reserva` por código y `calificaciones_de_sede` para el panel). Pendiente aplicarla en
+    staging y producción.
 - Cada archivo abre con un comentario que cita la fase y los RF/decisiones que atiende, y explica
   el impacto en RLS, `GRANT` o `reservas_sin_solape` si los toca (regla 5 de `AGENTS.md`).
 - Toda tabla nueva lleva `GRANT` explícito para `anon`, `authenticated` y `service_role`, y RLS

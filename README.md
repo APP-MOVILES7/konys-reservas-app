@@ -5,11 +5,12 @@ viendo la disponibilidad por franjas, y para que el personal autorizado gestione
 horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **JavaScript**
 (sin TypeScript) y **Supabase** (PostgreSQL) como backend, sin servidor propio.
 
-> **Estado:** etapas 1 a 4 implementadas en código y fases **F0 a F3 cerradas** (splash y
-> bienvenida, sedes, roles/privilegios y reservas en el local). **Sigue F4** (pago simulado y
-> ciclo de la reserva). La aceptación manual en celular real y las etapas 5–6 (pruebas, APK,
-> video y entrega) quedan para después de F6. Para el detalle del estado y los siguientes pasos,
-> ver `documentación/handoff.md`.
+> **Estado:** etapas 1 a 4 implementadas en código y **fases F0 a F6 cerradas** (splash y
+> bienvenida, sedes, roles/privilegios, pago simulado, calificaciones por estrellas e integración
+> y seguridad). **F6 quedó cerrada y probada en celular el 2026-11-07**, con la RLS verificada en
+> staging (30/30 sondas + PostgREST) y la regresión CP-05/07/08/09 y CP-25 a CP-35 superada. El
+> siguiente bloque es la **etapa 5 (pruebas)** y la **etapa 6 (compilación, video y entrega)**. Para
+> el detalle del estado y los siguientes pasos, ver `documentación/handoff.md`.
 
 ---
 
@@ -24,6 +25,12 @@ horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **J
 - **Confirmación:** resumen de la reserva con datos locales en memoria (sin datos personales
   en la URL ni persistencia).
 - **Carta:** filtros por categoría y precios en COP, con platos disponibles.
+- **Pago simulado (F4):** "Continuar al pago" muestra las llaves activas de la sede (Bre-B,
+  Nequi, Bancolombia u otro) con "Copiar"; la reserva solo se crea al marcar **"Ya pagué"**.
+- **Confirmación:** muestra el pago reportado y los 10 minutos de tolerancia, y el **código de
+  la reserva** (8 caracteres) con "Copiar".
+- **Calificación (F5):** "Calificar mi visita" en la bienvenida pide el código y 1–5 estrellas;
+  solo se califica una reserva **completada** y una sola vez (RN-15).
 
 ### Módulo de personal (F3)
 
@@ -40,19 +47,28 @@ horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **J
 - **Mesas:** crear, editar, activar/inactivar y borrar (una mesa con reservas no se borra:
   se inactiva).
 - **Horarios:** 7 días x 2 jornadas, con edición de hora inicio, hora fin, duración y activo.
-- **Reservas:** filtros Hoy / Mañana / Todas y por mesa; registrarlas en el local (08b),
-  cancelar o completar (no se borran).
+- **Reservas:** filtros Hoy / Mañana / Todas, por mesa y por estado; registrarlas en el local
+  (08b, con pago recibido opcional), cancelar, completar o marcar **No asistió** pasados los
+  10 minutos (RN-14).
 - **Carta:** crear, editar, ocultar/mostrar y eliminar platos; los roles con solo
   `carta.disponibilidad` marcan disponible o agotado.
+- **Métodos de pago (F4):** crear, editar, activar/desactivar y eliminar las llaves de la sede
+  (16/16b); el cliente ve solo las activas.
+- **Sedes:** la principal sigue protegida; las demás se pueden desactivar o eliminar escribiendo
+  su nombre exacto (13d, solo admin general).
+- **Calificaciones (F5):** con `calificaciones.ver`, la sede muestra promedio, distribución por
+  estrella y las visitas recientes (18); la tarjeta "Hoy" muestra el promedio.
 
 ### Seguridad y datos
 
-- RLS activo en todas las tablas (`sedes`, `mesas`, `horarios`, `platos`, `reservas`, `roles`,
-  `privilegios`, `rol_privilegios` y `perfiles`).
+- RLS activo en todas las tablas (`sedes`, `mesas`, `horarios`, `platos`, `reservas`,
+  `metodos_pago`, `roles`, `privilegios`, `rol_privilegios`, `perfiles` y `calificaciones`).
 - El cliente anónimo solo lee datos vigentes y solo inserta reservas; **no puede leer reservas
   ajenas**. La disponibilidad se consulta con la función `slots_ocupados(mesa, fecha)`.
+- **Pago simulado:** no hay pasarela ni validación de pagos. `pago_reportado` es una declaración
+  del cliente; el cliente solo ve las llaves activas de su sede y no se guardan datos de tarjetas.
 - Restricción de exclusión `reservas_sin_solape` que impide dos reservas confirmadas solapadas
-  en la misma mesa (error `23P01`).
+  en la misma mesa (error `23P01`). Al pasar a `no_asistio` la mesa queda libre (F4).
 - Un trigger valida capacidad, mesa activa, fecha/hora y alineación del slot, y calcula la hora
   de fin en el servidor.
 - `.env` nunca se versiona; solo se usa la clave pública (nunca la `service_role`).
@@ -70,6 +86,7 @@ horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **J
 | @react-native-async-storage/async-storage | 2.2.0 |
 | @react-native-community/netinfo | 12.0.1 |
 | @expo/vector-icons | ^15.0.2 |
+| expo-clipboard | ~58.0.4 |
 | Jest / jest-expo | ~30.5.2 / ~58.0.14 |
 
 Regla del proyecto: toda dependencia de app se instala con `npx expo install <paquete>`.
@@ -86,8 +103,9 @@ konys-reservas-app/
 │   ├── acceso.js, cambiar-clave.js
 │   ├── panel/              panel general (05b) y de la sede (05c/05d)
 │   ├── reservar/[mesaId].js
+│   ├── pago.js             pago simulado (02c)
 │   ├── confirmacion.js
-│   └── gestion/            mesas, horarios, reservas, carta, personal, roles, sedes y sus forms
+│   └── gestion/            mesas, horarios, reservas, carta, métodos de pago, personal, roles, sedes y sus forms
 ├── components/             componentes presentacionales
 ├── services/               única capa que habla con Supabase
 │   └── __tests__/          pruebas Jest
@@ -132,9 +150,10 @@ Abrir el QR con Expo Go. Si la red bloquea el tráfico local: `npx expo start --
 ### Base de datos
 
 1. Crear el proyecto en Supabase.
-2. Ejecutar en orden `supabase/schema.sql`, `supabase/migrations/001_sedes.sql` y
-   `supabase/migrations/002_roles.sql`. **Ninguno es idempotente**: no volver a ejecutarlos sobre
-   tablas existentes.
+2. Ejecutar en orden `supabase/schema.sql`, `supabase/migrations/001_sedes.sql`,
+   `supabase/migrations/002_roles.sql`, `supabase/migrations/003_pagos.sql` y
+   `supabase/migrations/004_calificaciones.sql`. **Ninguno es idempotente**: no volver a
+   ejecutarlos sobre tablas existentes.
 3. Crear el usuario administrador general en Authentication **antes** de `002_roles` (la
    migración lo convierte en perfil `admin_general`) o, si se crea después, insertar su fila en
    `perfiles` con el rol `admin_general` y sin sede. Las cuentas del resto del personal se crean
@@ -158,11 +177,12 @@ npx expo install --check
 
 ## 5. Pruebas
 
-- **Automáticas:** 137 pruebas en 9 suites, en verde (`npm test`).
+- **Automáticas:** 177 pruebas en 10 suites, en verde (`npm test`). Incluye U-01 a U-08 y el
+  banco de RLS en PostgreSQL embebido (`supabase/pruebas/banco_roles.mjs`, 92/92).
 - **Lint:** sin errores ni advertencias (`npm run lint`).
-- **Manuales pendientes:** CP-01 a CP-24 (cliente y administrador) y los casos nuevos de F1 a F3
-  en un celular real, más CP-24 sobre el APK. El registro está en `docs/pruebas.md`; las
-  comprobaciones de F1–F3 se anotan en la etapa 5.
+- **Manuales:** CP-25 a CP-35 superados en celular (2026-11-07) y RLS verificada en staging
+  (30/30 sondas + PostgREST). El registro está en `docs/pruebas.md`. Los CP-01 a CP-24
+  (cliente/administrador) se completan en la etapa 5.
 
 Los cambios que toquen reservas deben re-ejecutar CP-05, CP-07, CP-08 y CP-09.
 
@@ -205,15 +225,15 @@ equipo para consultarlas.
 | 2. Configuración del entorno | Implementada; falta registrar la verificación en celular |
 | 3. Módulo cliente (RF-01 a RF-07) | Implementada en código; aceptación manual pendiente |
 | 4. Módulo administrador (RF-08 a RF-14) | Implementada en código; aceptación manual pendiente |
-| 5. Pruebas | Pospuesta hasta cerrar F6 |
-| 6. Compilación, video y entrega | Pospuesta hasta cerrar F6 |
+| 5. Pruebas | Siguiente bloque |
+| 6. Compilación, video y entrega | Después de la etapa 5 |
 | F0. Preparación y alcance | Cerrada (2026-11-06) |
 | F1. Splash, bienvenida y footer | Cerrada (2026-11-06) |
 | F2. Sedes y aislamiento | Cerrada (2026-11-06) |
 | F3. Roles, privilegios y personal | Cerrada (2026-11-07) |
-| F4. Pago simulado y ciclo de la reserva | **Siguiente** |
-| F5. Calificaciones por estrellas | Pendiente |
-| F6. Integración, seguridad y cierre | Pendiente |
+| F4. Pago simulado y ciclo de la reserva | Cerrada (2026-11-07) |
+| F5. Calificaciones por estrellas | Cerrada y probada en celular (2026-11-07) |
+| F6. Integración, seguridad y cierre | Cerrada y probada en celular (2026-11-07) |
 
 ---
 

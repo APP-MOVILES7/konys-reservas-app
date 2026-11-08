@@ -2,7 +2,7 @@
 import { StyleSheet, Text } from 'react-native';
 import { colors } from '../constants/colors';
 
-export const TEXTO_FOOTER = '© 2026 Jorge Tamayo y Joan Sanchez. Todos los derechos reservados.';
+export const TEXTO_FOOTER = '© 2026 Jorge Tamayo y Joan Sanchez. \nTodos los derechos reservados.';
 
 export default function Footer() {
   return <Text style={styles.texto}>{TEXTO_FOOTER}</Text>;

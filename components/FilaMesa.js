@@ -3,12 +3,13 @@ import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 import { ZONAS } from '../constants/dominio';
+import { fotoLocalMesa } from '../constants/fotosMesas';
 import Foto from './Foto';
 
 // soloLectura (F3, `mesas.ver` sin `mesas.gestionar`): sin interruptor ni acciones.
 export default function FilaMesa({ mesa, procesando, soloLectura = false, onCambiarEstado, onEditar, onBorrar }) {
   return <View style={styles.fila}>
-    <Foto uri={mesa.foto_url} nombre={mesa.nombre} />
+    <Foto uri={mesa.foto_url} fuente={fotoLocalMesa(mesa.nombre)} nombre={mesa.nombre} />
     <View style={styles.contenido}>
       <Text style={styles.nombre}>{mesa.nombre}</Text>
       <Text style={styles.detalle}>{ZONAS[mesa.zona]} · hasta {mesa.capacidad} personas</Text>

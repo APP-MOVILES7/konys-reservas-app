@@ -36,6 +36,18 @@ describe('creación segura de reservas', () => {
     expect(listar).toHaveBeenCalledWith('sede-1');
     expect(insertar.mock.calls[0][0]).not.toHaveProperty('sede_id');
   });
+  it('guarda el pago reportado del cliente y lo deja opcional en el local (RN-13, D-06)', async () => {
+    await crear('mesa-1', '2026-10-29', '19:00', form);
+    expect(insertar.mock.calls[0][0].pago_reportado).toBe(false);
+    await crear('mesa-1', '2026-10-29', '19:00', form, { pagoReportado: true });
+    expect(insertar.mock.calls[1][0].pago_reportado).toBe(true);
+  });
+  it('genera un código de reserva y lo devuelve para la confirmación (F5)', async () => {
+    const resultado = await crear('mesa-1', '2026-10-29', '19:00', form, { pagoReportado: true });
+    const codigo = insertar.mock.calls[0][0].codigo;
+    expect(codigo).toMatch(/^[A-Z0-9]{8}$/);
+    expect(resultado.data.codigo).toBe(codigo);
+  });
   it('no inserta si otra persona ocupó una parte del horario', async () => {
     supabase.rpc.mockResolvedValue({ data: [{ hora_inicio: '19:30:00', hora_fin: '20:30:00' }], error: null });
     const resultado = await crear('mesa-1', '2026-10-29', '19:00', form);

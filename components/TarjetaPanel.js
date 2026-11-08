@@ -1,9 +1,10 @@
 // F3 (05b, 05c, 05d): tarjeta del panel del personal (componente TarjetaPanel de los mockups).
+// F5: `derecha` permite mostrar un accesorio (por ejemplo, el promedio del día) antes de la flecha.
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from '../constants/colors';
 
-export default function TarjetaPanel({ titulo, detalle, icono, onPress, etiqueta }) {
+export default function TarjetaPanel({ titulo, detalle, icono, onPress, etiqueta, derecha }) {
   return <Pressable accessibilityRole="button" accessibilityLabel={`${titulo}. ${detalle ?? ''}`} onPress={onPress}
     style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}>
     {!!icono && <View style={styles.icono}><Ionicons name={icono} size={22} color={colors.primario} /></View>}
@@ -14,6 +15,7 @@ export default function TarjetaPanel({ titulo, detalle, icono, onPress, etiqueta
       </View>
       {!!detalle && <Text style={styles.detalle}>{detalle}</Text>}
     </View>
+    {!!derecha && <View>{derecha}</View>}
     <Ionicons name="chevron-forward" size={20} color={colors.texto} />
   </Pressable>;
 }

@@ -9,7 +9,9 @@ import { colors } from '../constants/colors';
 import { entradaDirecta, listarActivas } from '../services/sedes';
 import { useSede } from '../hooks/SedeSeleccionada';
 import Boton from '../components/Boton';
+import FondoApp from '../components/FondoApp';
 import Footer from '../components/Footer';
+import Logo from '../components/Logo';
 
 // Vive mientras la app está abierta: la entrada directa solo ocurre en el arranque.
 let arranqueAtendido = false;
@@ -69,42 +71,48 @@ export default function BienvenidaScreen() {
     contenido = <View style={styles.lista}>
       <Text style={styles.secundario}>Elige la sede donde quieres reservar</Text>
       {estado.data.map((sede) => <Boton key={sede.id} titulo={sede.nombre} variante="secundario" onPress={() => entrar(sede)} />)}
+      {/* F5: el cliente califica con el código de su reserva sin elegir sede. */}
+      <Pressable accessibilityRole="link" accessibilityLabel="Calificar mi visita"
+        onPress={() => router.push('/calificar')} style={styles.calificar} hitSlop={6}>
+        <Ionicons name="star-outline" size={18} color={colors.texto} />
+        <Text style={styles.calificarTexto}>Calificar mi visita</Text>
+      </Pressable>
     </View>;
   }
 
   return (
-    <SafeAreaView style={styles.pantalla} edges={['top', 'bottom']}>
-      <ScrollView contentContainerStyle={styles.contenido}>
-        <View style={styles.cabecera}>
-          <Text style={styles.saludo}>Bienvenidos a</Text>
-          <Text accessibilityRole="header" style={styles.marca}>Konys Pizza</Text>
-          {/* Marcador del logo: se reemplaza cuando el restaurante entregue el archivo. */}
-          <View style={styles.logo} accessibilityLabel="Logo de Konys Pizza">
-            <Text style={styles.logoTexto}>K</Text>
+    <FondoApp>
+      <SafeAreaView style={styles.pantalla} edges={['top', 'bottom']}>
+        <ScrollView contentContainerStyle={styles.contenido}>
+          <View style={styles.cabecera}>
+            <Text style={styles.saludo}>Bienvenidos a</Text>
+            <Text accessibilityRole="header" style={styles.marca}>Konys Pizza</Text>
+            <Logo tamano={112} style={styles.logo} />
           </View>
-        </View>
-        {contenido}
-        <View style={styles.pie}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Acceso de personal" hitSlop={8}
-            onPress={() => router.push('/acceso')} style={({ pressed }) => [styles.ajustes, pressed && styles.presionado]}>
-            <Ionicons name="settings-outline" size={24} color={colors.primario} />
-          </Pressable>
-          <Footer />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {contenido}
+          <View style={styles.pie}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Acceso de personal" hitSlop={8}
+              onPress={() => router.push('/acceso')} style={({ pressed }) => [styles.ajustes, pressed && styles.presionado]}>
+              <Ionicons name="settings-outline" size={24} color={colors.primario} />
+            </Pressable>
+            <Footer />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </FondoApp>
   );
 }
 
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo },
+  pantalla: { flex: 1 },
   contenido: { flexGrow: 1, padding: 16, gap: 24 },
   cabecera: { alignItems: 'center', paddingTop: 48, gap: 4 },
   saludo: { fontSize: 17, color: colors.secundario, fontWeight: '500' },
   marca: { fontSize: 26, fontWeight: '800', color: colors.primario },
-  logo: { width: 112, height: 112, borderRadius: 56, backgroundColor: colors.ocupado, alignItems: 'center', justifyContent: 'center', marginTop: 16 },
-  logoTexto: { fontSize: 44, fontWeight: '800', color: colors.texto },
+  logo: { marginTop: 16 },
   lista: { gap: 12 },
+  calificar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 44, marginTop: 4 },
+  calificarTexto: { fontSize: 16, color: colors.texto, textDecorationLine: 'underline' },
   estado: { alignItems: 'center', gap: 12, paddingVertical: 16 },
   secundario: { fontSize: 15, color: colors.secundario, textAlign: 'center' },
   mensaje: { fontSize: 15, color: colors.texto, textAlign: 'center' },

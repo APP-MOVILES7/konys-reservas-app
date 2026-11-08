@@ -1,6 +1,6 @@
 // F3 (mockup 08b, D-06): reserva registrada en el local por el personal con `reservas.gestionar`.
 // Mismas reglas que la reserva del cliente (RN-01 a RN-05 y RN-09) y sin "Ya pagué": el pago es
-// opcional y su casilla llega en F4 con la columna pago_reportado.
+// opcional (F4) y se marca con `pago_reportado`.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
@@ -19,7 +19,7 @@ import EstadoPantalla from '../../components/EstadoPantalla';
 import SelectorFecha from '../../components/SelectorFecha';
 import SlotButton from '../../components/SlotButton';
 
-const formularioInicial = { cliente_nombre: '', num_personas: '1', cliente_contacto: '', acepta_tratamiento_datos: false };
+const formularioInicial = { cliente_nombre: '', num_personas: '1', cliente_contacto: '', acepta_tratamiento_datos: false, pago_recibido: false };
 
 export default function ReservaFormScreen() {
   const { sedeGestion } = useSesionPersonal();
@@ -103,7 +103,7 @@ export default function ReservaFormScreen() {
     setEnviando(true);
     setAviso(null);
     try {
-      const resultado = await crear(mesaId, fecha, elegido.hora_inicio, form);
+      const resultado = await crear(mesaId, fecha, elegido.hora_inicio, form, { pagoReportado: form.pago_recibido });
       if (!montada.current) return;
       if (resultado.error) {
         setAviso(resultado.error);
@@ -170,6 +170,12 @@ export default function ReservaFormScreen() {
         <Text style={styles.autorizacion}>El cliente autoriza el tratamiento de sus datos personales para gestionar esta reserva (Ley 1581 de 2012).</Text>
       </Pressable>
       {!form.acepta_tratamiento_datos && <Text style={styles.secundario}>{validacion.errores.acepta_tratamiento_datos}</Text>}
+      {/* F4 (08b, D-06): el pago en el local es opcional; la reserva del cliente sí lo exige. */}
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: form.pago_recibido }}
+        onPress={() => cambiar('pago_recibido', !form.pago_recibido)} style={styles.consentimiento}>
+        <Ionicons name={form.pago_recibido ? 'checkbox' : 'square-outline'} size={26} color={colors.primario} />
+        <Text style={styles.autorizacion}>Pago recibido (opcional). El cliente ya pagó en el local.</Text>
+      </Pressable>
       <View style={styles.tarjeta}>
         <Text style={styles.seccion}>Resumen</Text>
         <Text style={styles.secundario}>{mesa?.nombre ?? 'Selecciona una mesa'} · {form.num_personas || '—'} personas</Text>
