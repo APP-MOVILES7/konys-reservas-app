@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Konys_pizza",
+    "name": "Konys Pizza",
     "slug": "konys-pizza",
     "version": "1.0.0",
     "main": "expo-router/entry",
@@ -34,6 +34,17 @@
           "backgroundColor": "#0b323e"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "14991522-d3aa-4251-b786-0ca189ec4e3f"
+      }
+    },
+    "owner": "joansanchezz"
   }
 }
