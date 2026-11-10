@@ -5,12 +5,11 @@ viendo la disponibilidad por franjas, y para que el personal autorizado gestione
 horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **JavaScript**
 (sin TypeScript) y **Supabase** (PostgreSQL) como backend, sin servidor propio.
 
-> **Estado:** etapas 1 a 4 implementadas en código y **fases F0 a F6 cerradas** (splash y
+> **Estado:** etapas 1 a 5 completadas y **fases F0 a F6 cerradas** (splash y
 > bienvenida, sedes, roles/privilegios, pago simulado, calificaciones por estrellas e integración
-> y seguridad). **F6 quedó cerrada y probada en celular el 2026-11-07**, con la RLS verificada en
-> staging (30/30 sondas + PostgREST) y la regresión CP-05/07/08/09 y CP-25 a CP-35 superada. El
-> siguiente bloque es la **etapa 5 (pruebas)** y la **etapa 6 (compilación, video y entrega)**. Para
-> el detalle del estado y los siguientes pasos, ver `documentación/handoff.md`.
+> y seguridad). La etapa 5 quedó cerrada con los CP-01 a CP-23 y CP-25 a CP-35 registrados en
+> `docs/pruebas.md`; CP-24 se verifica sobre el APK. **Siguiente: etapa 6 (compilación del APK,
+> video y enlaces de entrega).**
 
 ---
 
@@ -109,22 +108,22 @@ konys-reservas-app/
 ├── components/             componentes presentacionales
 ├── services/               única capa que habla con Supabase
 │   └── __tests__/          pruebas Jest
-├── hooks/                  ReservaConfirmada, SedeSeleccionada, SesionPersonal
+├── hooks/                  ReservaConfirmada, ReservaPendiente, SedeSeleccionada, SesionPersonal
 ├── constants/              colors.js, dominio.js
 ├── supabase/
 │   ├── schema.sql          esquema base, RLS, triggers y disponibilidad
 │   ├── migrations/         001_sedes.sql, 002_roles.sql y las siguientes
 │   ├── functions/          Edge Functions crear-usuario y eliminar-usuario
 │   └── seed_carta.sql      carga de la carta en una base existente
-├── docs/                   mockups y documentación de apoyo
+├── docs/                   mockups y material de apoyo
 ├── assets/                 logo, iconos y splash
 ├── eas.json                perfil preview (APK)
 ├── .env.example
-└── documentación/          guías locales y handoff.md (excluida de Git)
+└── README.md
 ```
 
-`documentación/` contiene las guías locales y el `handoff.md`; está excluida de Git y no forma
-parte del enrutamiento de Expo Router. Las pantallas viven en `app/` en la raíz.
+Las pantallas viven en `app/` en la raíz; `components/`, `services/` y `hooks/` se importan con
+rutas relativas.
 
 ---
 
@@ -180,9 +179,8 @@ npx expo install --check
 - **Automáticas:** 177 pruebas en 10 suites, en verde (`npm test`). Incluye U-01 a U-08 y el
   banco de RLS en PostgreSQL embebido (`supabase/pruebas/banco_roles.mjs`, 92/92).
 - **Lint:** sin errores ni advertencias (`npm run lint`).
-- **Manuales:** CP-25 a CP-35 superados en celular (2026-11-07) y RLS verificada en staging
-  (30/30 sondas + PostgREST). El registro está en `docs/pruebas.md`. Los CP-01 a CP-24
-  (cliente/administrador) se completan en la etapa 5.
+- **Manuales:** CP-01 a CP-23 y CP-25 a CP-35 superados y registrados en `docs/pruebas.md`; RLS
+  verificada en staging (30/30 sondas + PostgREST). CP-24 se ejecuta sobre el APK en la etapa 6.
 
 Los cambios que toquen reservas deben re-ejecutar CP-05, CP-07, CP-08 y CP-09.
 
@@ -202,18 +200,16 @@ eas build -p android --profile preview
 
 ---
 
-## 7. Documentación
+## 7. Documentos del repositorio
 
-- `documentación/handoff.md`: estado actual, pendientes y siguientes pasos. **Actualizarlo en cada avance.** (Local, excluido de Git.)
-- `documentación/GUIA_METODOLOGICA_KONYS.md`: requisitos, decisiones, plan por etapas y pruebas.
-- `documentación/AGENTS.md`: contrato de desarrollo (convenciones, seguridad, reglas).
-- `documentación/FASES_IMPLEMENTACION_IDEAS.md`: plan detallado de las fases F0–F6.
 - `supabase/migrations/README.md`: numeración, entornos y procedimiento de migraciones.
 - `supabase/functions/README.md`: publicación y prueba de las Edge Functions de cuentas.
 - `docs/*.png`: mockups de las pantallas (exportaciones del Figma oficial).
+- `docs/pruebas.md`: registro de las pruebas automáticas y manuales.
 
-Las guías de `documentación/` son locales y no se versionan; deben estar disponibles en el
-equipo para consultarlas.
+Durante el desarrollo, el equipo mantuvo una guía de trabajo local para coordinarse con el
+compañero de equipo y avanzar sin tener que subir archivos al repositorio en cada cambio. Esa
+guía quedó fuera de la entrega y no forma parte del APK.
 
 ---
 
@@ -222,11 +218,11 @@ equipo para consultarlas.
 | Etapa | Estado |
 |---|---|
 | 1. Análisis y diseño | Implementada |
-| 2. Configuración del entorno | Implementada; falta registrar la verificación en celular |
-| 3. Módulo cliente (RF-01 a RF-07) | Implementada en código; aceptación manual pendiente |
-| 4. Módulo administrador (RF-08 a RF-14) | Implementada en código; aceptación manual pendiente |
-| 5. Pruebas | Siguiente bloque |
-| 6. Compilación, video y entrega | Después de la etapa 5 |
+| 2. Configuración del entorno | Implementada y verificada en celular |
+| 3. Módulo cliente (RF-01 a RF-07) | Implementada y probada (CP-01 a CP-13) |
+| 4. Módulo administrador (RF-08 a RF-14) | Implementada y probada (CP-14 a CP-21) |
+| 5. Pruebas | **Cerrada (2026-11-10)** |
+| 6. Compilación, video y entrega | En curso: falta el APK, el video y los enlaces |
 | F0. Preparación y alcance | Cerrada (2026-11-06) |
 | F1. Splash, bienvenida y footer | Cerrada (2026-11-06) |
 | F2. Sedes y aislamiento | Cerrada (2026-11-06) |

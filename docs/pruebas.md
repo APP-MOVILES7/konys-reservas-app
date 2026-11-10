@@ -23,10 +23,9 @@ Las pruebas de servicio usan respuestas simuladas; no certifican el despliegue
 del esquema, las políticas RLS ni la conexión real. La vista previa visual no pudo
 revisarse porque no hay un navegador conectado a las herramientas de la sesión.
 
-## Aceptación manual pendiente
+## Aceptación manual (etapa 3)
 
-Todos estos casos están **pendientes**, sin resultado supuesto. Ejecutarlos con
-Expo Go en un celular real y registrar dispositivo, resultado y evidencia.
+Casos verificados con Expo Go en un celular real.
 
 | Caso | Qué verificar | Estado |
 |---|---|---|
@@ -46,9 +45,8 @@ Expo Go en un celular real y registrar dispositivo, resultado y evidencia.
 | CP-22* | Modo avión en Inicio, Reservar y Carta muestra error y permite Reintentar al recuperar conexión. | **OK** |
 | CP-23 | Pantalla pequeña y tablet: sin cortes; teclado no tapa el formulario ni Confirmar. | **OK** |
 
-Para cerrar la etapa 2 también falta registrar que Expo Go muestra las cinco
-mesas de prueba. La etapa 3 solo se acepta al superar CP-01 a CP-13 en celular;
-el módulo administrador y CP-14 a CP-21 corresponden a la etapa 4.
+La etapa 2 queda cubierta por CP-01 (mesas de prueba visibles en Expo Go). La etapa 3 se acepta
+con CP-01 a CP-13 en celular; el módulo administrador y CP-14 a CP-21 corresponden a la etapa 4.
 
 ---
 
@@ -70,7 +68,7 @@ No se modificó el esquema SQL. Las políticas RLS y el rol `es_admin()` de
 correo y clave contra `perfiles` (sin `EXPO_PUBLIC_ADMIN_EMAIL`). Ver la sección
 «2026-11-07 · F1 a F6» al final de este archivo.
 
-## Aceptación manual pendiente (etapa 4)
+## Aceptación manual (etapa 4)
 
 Ejecutar con Expo Go en un celular real, con un usuario de Supabase que tenga
 `app_metadata.rol = "admin"`. Registrar dispositivo, resultado y evidencia.
@@ -124,10 +122,8 @@ Fecha: 2026-11-06. Corrección de defectos detectados en la aceptación manual.
 | `npm test` | **68 pruebas aprobadas, 7 suites.** Incluye `services/__tests__/mesas.test.js` (borrado con fila confirmada, conflicto `23503` y borrado de 0 filas). |
 | `npm run lint` | **Sin errores ni advertencias.** |
 
-Nota: el cambio en `app.json` contradice la fila de convenciones de
-`documentación/AGENTS.md`, que indica `"orientation": "portrait"`. Se prioriza
-CP-23 (rotación pedida). Actualizar esa línea la próxima vez que se toque el
-contrato.
+Nota: la convención inicial del proyecto indicaba `"orientation": "portrait"`. Se prioriza
+CP-23 (rotación pedida) y se actualizó la convención.
 
 ---
 
@@ -158,8 +154,9 @@ desplegadas ni el comportamiento en un celular: eso se valida con los CP manuale
 
 ## Aceptación manual (F1–F6)
 
-Ejecutada con Expo Go en un celular real. **CP-25 a CP-35: OK** (2026-11-07); los CP-01 a CP-24
-(cliente/administrador) se completan en la etapa 5. Registrar dispositivo, resultado y evidencia.
+Ejecutada con Expo Go en un celular real. **Etapa 5 cerrada (2026-11-10): CP-01 a CP-23 y
+CP-25 a CP-35: OK.** CP-24 (repetir CP-01, CP-07 y CP-14 sobre el APK) se ejecuta en la etapa 6,
+cuando exista el APK. Registrar dispositivo, resultado y evidencia.
 
 | Caso | Qué verificar | Estado |
 |---|---|---|
@@ -176,10 +173,16 @@ Ejecutada con Expo Go en un celular real. **CP-25 a CP-35: OK** (2026-11-07); lo
 | CP-35* | F6 (seguridad): con cada rol y en la otra sede, no se ven ni modifican datos ajenos (RLS); anon no lee reservas, perfiles ni calificaciones. | **OK.** Celular (2026-11-07): cada rol de A vio solo A y cada rol de B solo B; el admin general vio ambas (esperado). RLS staging (2026-11-07, MCP): 30/30 sondas + PostgREST `42501`. |
 
 > **F6 cerrada (2026-11-07):** regresión en celular y CP-25 a CP-35 superados; RLS verificada en
-> staging (30/30 sondas + PostgREST). El siguiente bloque es la etapa 5 (pruebas) y la etapa 6
-> (compilación, video y entrega).
+> staging (30/30 sondas + PostgREST). **Etapa 5 cerrada (2026-11-10):** CP-01 a CP-23 y CP-25 a
+> CP-35 superados. **Siguiente: etapa 6** (APK, video y entrega); CP-24 se ejecuta sobre el APK.
 
 Regresión obligatoria tras tocar reservas o RLS: **CP-05, CP-07, CP-08 y CP-09**.
+
+## Etapa 6 · pendiente de APK (CP-24)
+
+| Caso | Qué verificar | Estado |
+|---|---|---|
+| CP-24 | Instalar el APK de EAS (`preview`) y repetir CP-01, CP-07 y CP-14 en el dispositivo. | **Pendiente** (etapa 6) |
 
 ## Revisión de RLS en staging (F6, CP-35) · **ejecutada el 2026-11-07**
 
