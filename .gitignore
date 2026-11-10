@@ -42,6 +42,3 @@ yarn-error.*
 
 # variables de entorno (nunca se versionan)
 .env
-
-# documentación local de agentes
-/documentación/

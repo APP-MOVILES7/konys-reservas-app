@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Konys_pizza",
-    "slug": "Konys_pizza",
+    "slug": "konys-pizza",
     "version": "1.0.0",
     "main": "expo-router/entry",
     "orientation": "default",
@@ -11,6 +11,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.konyspizza.reservas",
       "adaptiveIcon": {
         "backgroundColor": "#0b323e",
         "foregroundImage": "./assets/splash-icon.png",
