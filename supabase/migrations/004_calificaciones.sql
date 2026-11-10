@@ -17,7 +17,7 @@
 --      resumen reciente (mesa, fecha y código) para el panel (18) sin exigir
 --      que el rol también pueda leer las reservas.
 --
--- Impacto en seguridad (regla 5 de AGENTS.md):
+-- Impacto en seguridad (regla de seguridad 5 del proyecto):
 --   * `codigo` no añade acceso: es un identificador legible, no un permiso.
 --     Su unicidad la garantiza `reservas_codigo_key`.
 --   * `calificaciones`: tabla nueva con RLS y GRANT explícito. anon no tiene

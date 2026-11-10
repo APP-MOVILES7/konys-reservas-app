@@ -18,7 +18,7 @@ numerada (decisión de la fase F0, 2026-11-06).
     `calificar_reserva` por código y `calificaciones_de_sede` para el panel). Pendiente aplicarla en
     staging y producción.
 - Cada archivo abre con un comentario que cita la fase y los RF/decisiones que atiende, y explica
-  el impacto en RLS, `GRANT` o `reservas_sin_solape` si los toca (regla 5 de `AGENTS.md`).
+  el impacto en RLS, `GRANT` o `reservas_sin_solape` si los toca (regla de seguridad 5 del proyecto).
 - Toda tabla nueva lleva `GRANT` explícito para `anon`, `authenticated` y `service_role`, y RLS
   activo. Sin el `GRANT` la API responde 42501.
 - Una migración ya aplicada en producción no se edita: se corrige con una migración nueva.
@@ -41,7 +41,7 @@ numerada (decisión de la fase F0, 2026-11-06).
 5. Respaldar producción. El 2026-11-06 se creó el esquema `respaldo_20261106` con copias de
    `mesas`, `horarios`, `reservas` y `platos`. No está expuesto a la API; borrarlo al cerrar F6.
 6. Con aprobación del equipo, aplicarla en **producción** con el mismo nombre.
-7. Registrar el resultado en `documentación/handoff.md`.
+7. Registrar el resultado en el control de cambios del equipo.
 
 Si se recrea el entorno local o de staging desde cero: aplicar `../schema.sql` (o
 `000_esquema_base`) y luego cada migración en orden.

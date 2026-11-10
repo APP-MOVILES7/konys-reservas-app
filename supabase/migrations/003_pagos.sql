@@ -21,7 +21,7 @@
 --      llega completa en esta fase porque ya existen `perfiles` y
 --      `metodos_pago` (excepción aprobada a RN-06).
 --
--- Impacto en seguridad (regla 5 de AGENTS.md):
+-- Impacto en seguridad (regla de seguridad 5 del proyecto):
 --   * metodos_pago: nueva tabla con RLS y GRANT explícito. anon solo lee las
 --     llaves activas de sedes activas (las necesita para pagar). El personal
 --     con `pagos.gestionar` lee todas (también inactivas) y crea/edita/borra

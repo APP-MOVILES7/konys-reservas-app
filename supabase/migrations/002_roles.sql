@@ -31,7 +31,7 @@
 --      la fase 3B.
 --   7. Funciones para la app: mi_sesion() y marcar_clave_cambiada().
 --
--- Impacto en seguridad (regla 5 de AGENTS.md):
+-- Impacto en seguridad (regla de seguridad 5 del proyecto):
 --   * GRANT: se retiran los privilegios de más que anon tenía por defecto
 --     (INSERT/UPDATE/DELETE/TRUNCATE en mesas, horarios, platos y sedes).
 --     anon queda con SELECT en mesas, horarios, platos y sedes e INSERT en

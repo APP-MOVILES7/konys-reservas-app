@@ -12,7 +12,7 @@
 --      y no se elimina, ni desde la app ni con SQL directo (trigger).
 --   6. Cada sede nueva recibe sus 14 jornadas con el horario del documento.
 --
--- Impacto en seguridad (regla 5 de AGENTS.md):
+-- Impacto en seguridad (regla de seguridad 5 del proyecto):
 --   * GRANT: `sedes` → select a anon; select/insert/update/delete a
 --     authenticated y service_role (sin GRANT la API responde 42501).
 --   * RLS: `sedes` con RLS activo. Anon lee solo sedes activas; el admin
