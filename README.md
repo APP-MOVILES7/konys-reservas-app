@@ -8,8 +8,8 @@ horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **J
 > **Estado:** etapas 1 a 5 completadas y **fases F0 a F6 cerradas** (splash y
 > bienvenida, sedes, roles/privilegios, pago simulado, calificaciones por estrellas e integración
 > y seguridad). La etapa 5 quedó cerrada con los CP-01 a CP-23 y CP-25 a CP-35 registrados en
-> `docs/pruebas.md`. **El APK ya está generado (2026-11-10)**; falta ejecutar CP-24 sobre el
-> dispositivo, grabar el video y publicar los enlaces finales de entrega.
+> `docs/pruebas.md`. **El APK está generado y CP-24 fue superado en un Xiaomi Note 11 Pro
+> (2026-11-10)**; faltan el video y los enlaces finales de entrega.
 
 ---
 
@@ -180,7 +180,8 @@ npx expo install --check
   banco de RLS en PostgreSQL embebido (`supabase/pruebas/banco_roles.mjs`, 92/92).
 - **Lint:** sin errores ni advertencias (`npm run lint`).
 - **Manuales:** CP-01 a CP-23 y CP-25 a CP-35 superados y registrados en `docs/pruebas.md`; RLS
-  verificada en staging (30/30 sondas + PostgREST). CP-24 se ejecuta sobre el APK en la etapa 6.
+  verificada en staging (30/30 sondas + PostgREST). CP-24 superado sobre el APK en un Xiaomi Note
+  11 Pro (2026-11-10).
 
 Los cambios que toquen reservas deben re-ejecutar CP-05, CP-07, CP-08 y CP-09.
 
@@ -198,7 +199,7 @@ eas env:set --environment preview --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "
 eas build -p android --profile preview
 ```
 
-**APK generado el 2026-11-10** (perfil `preview`, versión 1.0.0, versionCode 1, commit `b2f7431`):
+**APK generado el 2026-11-10** (perfil `preview`, versión 1.0.0, versionCode 1, commit `705a046`):
 
 - [Descargar APK](https://expo.dev/artifacts/eas/0c5CFQZqmqX_9mDLvjpkz4cwZi4lcZDBkwGeycfBGyE.apk)
 - [Build en EAS](https://expo.dev/accounts/joansanchezz/projects/konys-pizza/builds/8a90f40d-405e-419e-925f-ab6289678019)
@@ -227,7 +228,7 @@ guía quedó fuera de la entrega y no forma parte del APK.
 | 3. Módulo cliente (RF-01 a RF-07) | Implementada y probada (CP-01 a CP-13) |
 | 4. Módulo administrador (RF-08 a RF-14) | Implementada y probada (CP-14 a CP-21) |
 | 5. Pruebas | **Cerrada (2026-11-10)** |
-| 6. Compilación, video y entrega | En curso: APK generado; faltan CP-24, el video y los enlaces |
+| 6. Compilación, video y entrega | En curso: APK probado (CP-24 OK); faltan el video y los enlaces |
 | F0. Preparación y alcance | Cerrada (2026-11-06) |
 | F1. Splash, bienvenida y footer | Cerrada (2026-11-06) |
 | F2. Sedes y aislamiento | Cerrada (2026-11-06) |

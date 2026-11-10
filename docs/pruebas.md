@@ -155,9 +155,8 @@ desplegadas ni el comportamiento en un celular: eso se valida con los CP manuale
 ## Aceptación manual (F1–F6)
 
 Ejecutada con Expo Go en un celular real. **Etapa 5 cerrada (2026-11-10): CP-01 a CP-23 y
-CP-25 a CP-35: OK.** El APK ya está generado (ver la sección de la etapa 6); CP-24 (repetir
-CP-01, CP-07 y CP-14 sobre el APK) queda pendiente de ejecutar en el dispositivo. Registrar
-dispositivo, resultado y evidencia.
+CP-25 a CP-35: OK.** El APK se instaló y se probó en un **Xiaomi Note 11 Pro** el 2026-11-10:
+CP-24 (CP-01, CP-07 y CP-14 sobre el APK) **OK**.
 
 | Caso | Qué verificar | Estado |
 |---|---|---|
@@ -175,25 +174,26 @@ dispositivo, resultado y evidencia.
 
 > **F6 cerrada (2026-11-07):** regresión en celular y CP-25 a CP-35 superados; RLS verificada en
 > staging (30/30 sondas + PostgREST). **Etapa 5 cerrada (2026-11-10):** CP-01 a CP-23 y CP-25 a
-> CP-35 superados. **APK generado (2026-11-10).** Pendientes de la etapa 6: CP-24, el video y los
-> enlaces finales.
+> CP-35 superados. **APK generado y CP-24 superado (2026-11-10, Xiaomi Note 11 Pro).** Pendientes
+> de la etapa 6: el video y los enlaces finales.
 
 Regresión obligatoria tras tocar reservas o RLS: **CP-05, CP-07, CP-08 y CP-09**.
 
-## Etapa 6 · APK generado (CP-24 pendiente)
+## Etapa 6 · APK generado y probado (CP-24 OK)
 
 | Dato | Valor |
 |---|---|
 | Build de EAS | `8a90f40d-405e-419e-925f-ab6289678019` |
 | Perfil | `preview` (APK, distribución interna) |
 | Versión / versionCode | 1.0.0 / 1 |
-| Commit | `b2f7431` |
+| Commit | `705a046` |
+| Dispositivo de prueba | Xiaomi Note 11 Pro (Android) |
 | APK | https://expo.dev/artifacts/eas/0c5CFQZqmqX_9mDLvjpkz4cwZi4lcZDBkwGeycfBGyE.apk |
 | Seguimiento | https://expo.dev/accounts/joansanchezz/projects/konys-pizza/builds/8a90f40d-405e-419e-925f-ab6289678019 |
 
 | Caso | Qué verificar | Estado |
 |---|---|---|
-| CP-24 | Instalar el APK y repetir CP-01, CP-07 y CP-14 en el dispositivo. | **Pendiente de ejecutar** |
+| CP-24 | Instalar el APK y repetir CP-01, CP-07 y CP-14 en el dispositivo. | **OK** (Xiaomi Note 11 Pro, 2026-11-10) |
 
 ## Revisión de RLS en staging (F6, CP-35) · **ejecutada el 2026-11-07**
 
