@@ -20,6 +20,7 @@ function PanelSedeScreenContenido() {
   const { perfil, sedeGestion, salir, puede } = useSesionPersonal();
   const [saliendo, setSaliendo] = useState(false);
   const [hoy, setHoy] = useState(null);
+  const [errorHoy, setErrorHoy] = useState(null);
   const [promedio, setPromedio] = useState(null);
   const montada = useRef(true);
   const sedeId = sedeGestion?.id;
@@ -28,11 +29,17 @@ function PanelSedeScreenContenido() {
 
   const cargarHoy = useCallback(async () => {
     if (!sedeId || !gestionaReservas) return;
+    setErrorHoy(null);
     const [reservas, puntos] = await Promise.all([
       listarReservas({ sedeId, fecha: fechaLocal() }),
       veCalificaciones ? listarPuntuaciones(sedeId) : Promise.resolve({ data: [], error: null }),
     ]);
-    if (!montada.current || reservas.error) return;
+    if (!montada.current) return;
+    // RNF-09: si falla la carga, la tarjeta ofrece reintentar en vez de mostrar un resumen vacío.
+    if (reservas.error) {
+      setErrorHoy(reservas.error);
+      return;
+    }
     const datos = reservas.data ?? [];
     setHoy({
       total: datos.length,
@@ -46,6 +53,7 @@ function PanelSedeScreenContenido() {
   useFocusEffect(useCallback(() => {
     montada.current = true;
     setHoy(null);
+    setErrorHoy(null);
     setPromedio(null);
     cargarHoy();
     return () => { montada.current = false; };
@@ -56,9 +64,11 @@ function PanelSedeScreenContenido() {
 
   const general = esAdminGeneral(perfil);
   const tarjetas = tarjetasPanel(perfil);
-  const detalleHoy = hoy
-    ? `${hoy.total} reserva${hoy.total === 1 ? '' : 's'} · ${hoy.conPago} con pago reportado · ${hoy.noAsistio} no asistió`
-    : 'Reservas de hoy';
+  const detalleHoy = errorHoy
+    ? `${errorHoy} Toca la tarjeta para reintentar.`
+    : hoy
+      ? `${hoy.total} reserva${hoy.total === 1 ? '' : 's'} · ${hoy.conPago} con pago reportado · ${hoy.noAsistio} no asistió`
+      : 'Reservas de hoy';
 
   async function cerrarSesion() {
     setSaliendo(true);
@@ -82,7 +92,7 @@ function PanelSedeScreenContenido() {
           <Ionicons name="star" size={16} color={colors.acento} />
           <Text style={styles.promedioTexto}>{promedioTexto(promedio)}</Text>
         </View> : null}
-        onPress={() => router.push('/gestion/reservas')} />}
+        onPress={() => (errorHoy ? cargarHoy() : router.push('/gestion/reservas'))} />}
       {tarjetas.length
         ? <View style={styles.lista}>
           {tarjetas.map((t) => <TarjetaPanel key={t.clave} titulo={t.titulo} detalle={t.detalle} icono={t.icono}
