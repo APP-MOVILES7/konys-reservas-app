@@ -74,7 +74,7 @@ export default function InicioScreen() {
             <Boton titulo="Reservar mesa" variante="accion" disabled={!estado.data?.length} onPress={() => reservar(estado.data[0])} />
             <Text accessibilityRole="header" style={[styles.subtitulo, styles.subtituloSuelto]}>Mesas disponibles</Text>
           </View>}
-          ListEmptyComponent={<EstadoPantalla claro mensaje={`${sede.nombre} no tiene mesas disponibles por ahora.`} onReintentar={cargar} />}
+          ListEmptyComponent={<EstadoPantalla claro mensaje={`No hay mesas disponibles en ${sede.nombre} por ahora.`} onReintentar={cargar} />}
           renderItem={({ item }) => <MesaCard mesa={item} onPress={() => reservar(item)} />} />}
     </FondoSeccion>
   );
