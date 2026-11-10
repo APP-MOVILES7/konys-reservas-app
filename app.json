@@ -3,9 +3,8 @@
     "name": "Konys Pizza",
     "slug": "konys-pizza",
     "version": "1.0.0",
-    "main": "expo-router/entry",
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/splash-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
@@ -33,7 +32,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#0b323e"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "router": {
