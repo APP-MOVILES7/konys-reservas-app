@@ -8,8 +8,8 @@ horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **J
 > **Estado:** etapas 1 a 5 completadas y **fases F0 a F6 cerradas** (splash y
 > bienvenida, sedes, roles/privilegios, pago simulado, calificaciones por estrellas e integración
 > y seguridad). La etapa 5 quedó cerrada con los CP-01 a CP-23 y CP-25 a CP-35 registrados en
-> `docs/pruebas.md`; CP-24 se verifica sobre el APK. **Siguiente: etapa 6 (compilación del APK,
-> video y enlaces de entrega).**
+> `docs/pruebas.md`. **El APK ya está generado (2026-11-10)**; falta ejecutar CP-24 sobre el
+> dispositivo, grabar el video y publicar los enlaces finales de entrega.
 
 ---
 
@@ -198,6 +198,11 @@ eas env:set --environment preview --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "
 eas build -p android --profile preview
 ```
 
+**APK generado el 2026-11-10** (perfil `preview`, versión 1.0.0, versionCode 1, commit `b2f7431`):
+
+- [Descargar APK](https://expo.dev/artifacts/eas/0c5CFQZqmqX_9mDLvjpkz4cwZi4lcZDBkwGeycfBGyE.apk)
+- [Build en EAS](https://expo.dev/accounts/joansanchezz/projects/konys-pizza/builds/8a90f40d-405e-419e-925f-ab6289678019)
+
 ---
 
 ## 7. Documentos del repositorio
@@ -222,7 +227,7 @@ guía quedó fuera de la entrega y no forma parte del APK.
 | 3. Módulo cliente (RF-01 a RF-07) | Implementada y probada (CP-01 a CP-13) |
 | 4. Módulo administrador (RF-08 a RF-14) | Implementada y probada (CP-14 a CP-21) |
 | 5. Pruebas | **Cerrada (2026-11-10)** |
-| 6. Compilación, video y entrega | En curso: falta el APK, el video y los enlaces |
+| 6. Compilación, video y entrega | En curso: APK generado; faltan CP-24, el video y los enlaces |
 | F0. Preparación y alcance | Cerrada (2026-11-06) |
 | F1. Splash, bienvenida y footer | Cerrada (2026-11-06) |
 | F2. Sedes y aislamiento | Cerrada (2026-11-06) |
