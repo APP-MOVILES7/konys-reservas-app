@@ -5,12 +5,7 @@ viendo la disponibilidad por franjas, y para que el personal autorizado gestione
 horarios, reservas y carta. Construida con **React Native + Expo SDK 58** en **JavaScript**
 (sin TypeScript) y **Supabase** (PostgreSQL) como backend, sin servidor propio.
 
-> **Estado:** etapas 1 a 5 completadas y **fases F0 a F6 cerradas** (splash y
-> bienvenida, sedes, roles/privilegios, pago simulado, calificaciones por estrellas e integración
-> y seguridad). La etapa 5 quedó cerrada con los CP-01 a CP-23 y CP-25 a CP-35 registrados en
-> `docs/pruebas.md`. **El APK está generado y CP-24 fue superado en un Xiaomi Note 11 Pro
-> (2026-11-10)**; faltan el video y los enlaces finales de entrega.
-
+![Pantallas de Navegación](assets/pantallas.gif)
 ---
 
 ## 1. Funcionalidades
@@ -228,7 +223,7 @@ guía quedó fuera de la entrega y no forma parte del APK.
 | 3. Módulo cliente (RF-01 a RF-07) | Implementada y probada (CP-01 a CP-13) |
 | 4. Módulo administrador (RF-08 a RF-14) | Implementada y probada (CP-14 a CP-21) |
 | 5. Pruebas | **Cerrada (2026-11-10)** |
-| 6. Compilación, video y entrega | En curso: APK probado (CP-24 OK); faltan el video y los enlaces |
+| 6. Compilación, video y entrega | **Cerrada (2026-11-14)** |
 | F0. Preparación y alcance | Cerrada (2026-11-06) |
 | F1. Splash, bienvenida y footer | Cerrada (2026-11-06) |
 | F2. Sedes y aislamiento | Cerrada (2026-11-06) |
